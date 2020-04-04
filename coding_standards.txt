@@ -1,0 +1,36 @@
+CMSC 447 Team 1999 Coding Standards:
+
+Naming Conventions:
+    File names will not include spaces. Instead of spaces, use "_".
+    Classes and Structs will capitalize the first letter of their name.
+    The names member variables for Classes and Structs will begin with "m_".
+    Other variables and functions will be named using camelcase.
+
+Class Defining Conventions:
+    All member variables for classes will be private.
+    Classes will contain public getters and setters for manipulating member variables.
+    A default constructor for will always be present.
+    A destructor will always be present.
+    There will be no seperation of .h and .cpp files. Everything will be defined in the .h file.
+    
+General File Conventions:
+    Every file will have a header including the following information:
+        Name of the original coder.
+        Date of the most recent change.
+        Small description of changes made.
+        Small explanation of what is contained in the file.
+    All tabs will be equivalent to 4 spaces.
+    Brackets for seperating blocks of code will begin on their own line.
+    All functions will be preceded by a header containing the following information:
+        Expected input for the function.
+        Expected output for the function.
+        Any requirements for the function to run.
+        Any assumptions the function makes.
+        A small description of the function.
+    A comment should be added to any block of code that is not self-explanatory.
+    All numbers be defined as constants using "CONST".
+        This is to prevent numbers from being hardcoded.
+    All numbers will be ints or doubles.
+    All files will use namespace std.
+
+    
