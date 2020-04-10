@@ -1,0 +1,91 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title> Full Swing System </title>
+    
+    <style>
+        ul {
+            display: table;
+            margin: 0 auto;
+        }
+        
+        .map{
+            border-style: solid;
+            border-width: 3px;
+            border-color: black;
+        }
+
+    </style>
+    
+</head>
+
+<body>
+
+    <div>
+    <p align='center'>
+        <span style="font-size:20px"><strong>Welcome to the full swing system</strong></span>
+        <br />
+        <br />
+        <span style="font-size:16px">This system will re-draw the districts of a state to make it a swing state.</br>
+        Simply select a state then hit run, enjoy!</span>
+    
+    </p>
+    </div>
+
+    <div>
+    <table align='center'>
+        <tbody>
+            <tr> 
+                <td colspan='2' align='center'> 
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.3.1/css/ol.css" type="text/css">
+                    <style>
+                        .map {
+                          height: 600px;
+                          width: 1000px;
+                        }
+                    </style>
+
+                    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.3.1/build/ol.js"></script>
+
+                    <h2>Map</h2>
+                    <div id="map" class="map"></div>
+                    <script src="./mappy.js"></script>
+
+                </td>
+            </tr>
+            <tr>
+                <td align='center'>
+                    <br />
+                    <select style="font-size:15px">
+                        <option value=''>--Select State--</option>
+                        <option value='Maryland'>Maryland</option>
+                    </select>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <button type="button" style="font-size:15px">Run</button>
+                </td>
+            </tr>
+        </tbody>
+        
+        <tfoot>
+            <tr>
+                <td align='center' colspan='3' valign='bottom'>
+                    <br />
+                    <br />
+                    <br />
+                    <strong>References:</strong>
+                    <ul align='center'>
+                        <li><a href="url">link one</a></li>
+                        <li><a href="url">link two</a></li>
+                        <li><a href="url">link three</a></li>
+                        <li><a href="url">link four</a></li>
+                    </ul>
+                </td>
+            </tr>
+        </tfoot>
+        
+    </table>
+    </div>
+
+</body>
+</html>
