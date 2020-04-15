@@ -1,59 +1,93 @@
-var dem_link = ''; //LINK TO DEMOCRAT GEOJSON DATA HERE
-var repub_link = ''; //LINK TO REPUBLICAN GEOJSON DATA HERE
+/***********************************************************************
+mappy.js file updated by Kavya Kavanakudy on April 15, 2020
+This is the .js file that interacts with the API in order to display a 
+map of a GEOJSON file provided by the algorithm
+***********************************************************************/
 
-//setting source and format for democrat vectors
-var dem_vectors = new ol.source.Vector({
-    url: dem_link,
-    format: new ol.format.GeoJSON()
-});
+//The source files for geojson data
+var districtData ="districts.geojson"
+var precinctData = "precinct2010.zip.geojson"
 
-//setting source and format for republican vectors
-var repub_vectors = new ol.source.Vector({
-    url: repub_link,
-    format: new ol.format.GeoJSON()
-});
+/****************************************
+  A varialbe that stores how the 
+  geojson data will be displayed based
+  on party.
+****************************************/
 
-//setting style for democrat vectors
-var dem_style = new ol.style.Style({
+var partyStyles = {
+  
+  //red fill and out line for Republican districts
+  'Republican': new ol.style.Style({
     fill: new ol.style.Fill({
-        color: 'rgba(73, 125, 193, 0.4)'
+        color: 'rgba(193, 73, 73, 0.5)'
     }),
     stroke: new ol.style.Stroke({
-        color: 'rgba(73, 125, 193, 1)',
-        width: 5
-    }),
-    text: new ol.style.Text({
-        font: '24px Calibri,sans-serif',
-        fill: new ol.style.Fill({
-            color: '#000'
-        }),
-        stroke: new ol.style.Stroke({
-            color: '#fff',
-            width: 3
-        })
+        color: 'rgba(204, 0, 0, 1)',
+        width: 3
     })
-});
-
-//setting style for republican vectors
-var repub_style = new ol.style.Style({
+  }),
+  
+  //blue fill and oultine for Democratic districts
+  'Democrat': new ol.style.Style({
     fill: new ol.style.Fill({
-        color: 'rgba(193, 73, 73, 0.4)'
+        color: 'rgba(73, 125, 193, 0.5)'
     }),
     stroke: new ol.style.Stroke({
-        color: 'rgba(193, 73, 73, 1)',
-        width: 5
+        color: 'rgba(0, 0, 255, 1)',
+        width: 3
     }),
-    text: new ol.style.Text({
-        font: '24px Calibri,sans-serif',
-        fill: new ol.style.Fill({
-            color: '#000'
-        }),
-        stroke: new ol.style.Stroke({
-            color: '#fff',
-            width: 3
-        })
-    })
+  })
+
+};
+
+/************************************************* 
+  A style function for the districts
+  it choose a style based on party the feature is.
+  It takes in a feature and returns the approciate
+  style characteristics.
+***************************************************/
+
+var styleFunction = function(feature) {
+  return partyStyles[feature.get("party")]
+};
+
+/******************************************************
+Creates a vector layer containing the district geojson 
+data and corresponding style as defined above
+******************************************************/
+
+var districtLayer = new ol.layer.Vector({
+  	source: new ol.source.Vector({
+    url: districtData,
+    format: new ol.format.GeoJSON(),
+  }),
+  style: styleFunction
 });
+
+
+/******************************************************
+Creates a vector layer containing the precict 
+geojson data and the style is just a black outline
+******************************************************/
+
+var precinctLayer = new ol.layer.Vector({
+    source: new ol.source.Vector({
+    url: precinctData,
+    format: new ol.format.GeoJSON(),
+  }),
+  style: new ol.style.Style({
+    stroke: new ol.style.Stroke({
+      color: 'rgba(0,,0,0,1',
+      width: .5
+    })
+  })
+});
+
+/******************************************************
+The following displays the map with an 
+open street maps layer, the district layer and 
+precinct layer. The map is centered on Maryland.
+******************************************************/
 
 var map = new ol.Map({
 
@@ -64,34 +98,16 @@ var map = new ol.Map({
       new ol.layer.Tile({
         source: new ol.source.OSM()
       }),
-
-      //put democrat shapes on map
-      new ol.layer.Vector({
-        source: dem_vectors,
-        style: dem_style
-            //display name of party on each shape
-            //function(feature) {
-                //dem_style.getText().setText(feature.get('PARTY'))
-                //return dem_style;
-            //}
-      }),
-
-      //put republican shapes on map
-      new ol.layer.Vector({
-        source: repub_vectors,
-        style: repub_style
-            //function(feature) {
-                //repub_style.getText().setText(feature.get('PARTY'))
-                //return repub_style;
-            //}
-      })
-
+      precinctLayer,
+      districtLayer
+      
     ],
 
     view: new ol.View({
         //lon, lat coordinates for maryland
         center: ol.proj.fromLonLat([-76.641273, 39.045753]),
-        zoom: 8
+        zoom: 7.5
    })
 
 });
+
