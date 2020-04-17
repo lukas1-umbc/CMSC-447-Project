@@ -1,12 +1,12 @@
 /***********************************************************************
-mappy.js file updated by Kavya Kavanakudy on April 15, 2020
+mappy.js file updated by Lukas Mueller on April 17, 2020.
 This is the .js file that interacts with the API in order to display a 
 map of a GEOJSON file provided by the algorithm
 ***********************************************************************/
 
 //The source files for geojson data
 var districtData ="districts.geojson"
-var precinctData = "precinct2010.zip.geojson"
+var precinctData = "precinct2010.geojson"
 
 /****************************************
   A varialbe that stores how the 
@@ -52,23 +52,54 @@ var styleFunction = function(feature) {
 };
 
 /******************************************************
-Creates a vector layer containing the district geojson 
-data and corresponding style as defined above
+Creates a group of layers: one layer is the base map 
+layer, and the other is the district geojson data with
+the appropriate style. 
 ******************************************************/
 
-var districtLayer = new ol.layer.Vector({
-  	source: new ol.source.Vector({
-    url: districtData,
-    format: new ol.format.GeoJSON(),
-  }),
-  style: styleFunction
-});
+var districtGroup = new ol.layer.Group({
+    layers:[
 
+      new ol.layer.Tile({
+        source: new ol.source.OSM()
+      }),
+
+      new ol.layer.Vector({
+        source: new ol.source.Vector({
+        url: districtData,
+        format: new ol.format.GeoJSON(),
+        }),
+        style: styleFunction
+      })
+    ]
+})
 
 /******************************************************
 Creates a vector layer containing the precict 
 geojson data and the style is just a black outline
 ******************************************************/
+
+var precinctGroup = new ol.layer.Group({
+  layers:[
+
+    new ol.layer.Tile({
+      source: new ol.source.OSM()
+    }),
+
+    new ol.layer.Vector({
+      source: new ol.source.Vector({
+      url: precinctData,
+      format: new ol.format.GeoJSON(),
+      }),
+      style: new ol.style.Style({
+        stroke: new ol.style.Stroke({
+          color: 'rgba(0,0,0,1)',
+          width: .5
+        })
+      })
+    })
+  ]
+})
 
 var precinctLayer = new ol.layer.Vector({
     source: new ol.source.Vector({
@@ -77,7 +108,7 @@ var precinctLayer = new ol.layer.Vector({
   }),
   style: new ol.style.Style({
     stroke: new ol.style.Stroke({
-      color: 'rgba(0,,0,0,1',
+      color: 'rgba(0,0,0,1)',
       width: .5
     })
   })
@@ -93,15 +124,7 @@ var map = new ol.Map({
 
     target: 'map',
 
-    layers: [
-
-      new ol.layer.Tile({
-        source: new ol.source.OSM()
-      }),
-      precinctLayer,
-      districtLayer
-      
-    ],
+    layers: precinctGroup,
 
     view: new ol.View({
         //lon, lat coordinates for maryland
@@ -111,3 +134,13 @@ var map = new ol.Map({
 
 });
 
+/******************************************************
+Sets an event for when the Run button is pressed.
+The layer group being displayed on the map is switched 
+to the district group.
+******************************************************/
+
+var button = document.getElementById("mapswitcher");
+button.addEventListener("click", function(){
+    map.setLayerGroup(districtGroup)
+});
