@@ -3,8 +3,8 @@
 //		None
 //
 // Original Coder: David Ramsey
-// Most Recent Change: 15 April 2020
-//		- Initial creation
+// Most Recent Change: 19 April 2020
+//		- added addPartyPercentage function
 //
 
 
@@ -19,7 +19,7 @@ using namespace std;
 
 class Precinct {
 private:
-	int	m_id;						// precinct's id or index
+	string	m_id;						// precinct's id or index
 	int m_totalPop;					// the total population
 	vector<double> m_partyPercents; // percentage of party affiliation, one entry for each party
 	vector<Precinct*> m_neighbors;	// list of pointers to all adjacent precincts
@@ -30,11 +30,11 @@ public:
 	~Precinct();
 
 	// Setters
-	void setId(int newId);
+	void setId(string newId);
 	void setTotalPop(int newTotalPop);
 
 	// Getters
-	int getId();
+	string getId();
 	int getTotalPop();
 
 	// Print
@@ -42,13 +42,14 @@ public:
 
 	// Helpers
 	int getPartyPop(int partyIndex);
+	void addPartyPercentage(double percentage);
 
 };
 
 /**** Construct - Destruct ****/
 Precinct::Precinct()
 {
-	setId(0);
+	setId("");
 	setTotalPop(0);
 }
 
@@ -57,7 +58,7 @@ Precinct::~Precinct()
 }
 
 /**** Setters ****/
-void Precinct::setId(int newId)
+void Precinct::setId(string newId)
 {
 	m_id = newId;
 }
@@ -68,7 +69,7 @@ void Precinct::setTotalPop(int newTotalPop)
 }
 
 /***** Getters *****/
-int Precinct::getId()
+string Precinct::getId()
 {
 	return m_id;
 }
@@ -82,7 +83,15 @@ int Precinct::getTotalPop()
 // print(): prints all information about precinct
 void Precinct::print()
 {
-
+	cout << endl << "Precinct ID: " << m_id << endl
+		 << "Precinct Population: " << m_totalPop << endl
+		 << "Precinct Party Percentages: " << endl
+		 << "Democrat: " << (m_partyPercents[0] * 100) << "%" << endl
+		 << "Green: " << (m_partyPercents[1] * 100) << "%"  << endl
+		 << "Libertarian: " << (m_partyPercents[2] * 100) << "%"  << endl
+		 << "Other Parties: " << (m_partyPercents[3] * 100) << "%"  << endl
+		 << "Republican: " << (m_partyPercents[4] * 100) << "%"  << endl
+		 << "Unaffiliated: " << (m_partyPercents[5] * 100) << "%"  << endl;
 }
 
 /**** Helpers ****/
@@ -92,6 +101,14 @@ void Precinct::print()
 int Precinct::getPartyPop(int partyIndex)
 {
 	return (int)(m_partyPercents[partyIndex] * (double)m_totalPop);
+}
+
+// addPartyPercentage(): adds a percentage for a party and adds it to the
+// back of m_partyPercents
+// - Input: double percentage, the percentage of a party in a specific precinct
+void Precinct::addPartyPercentage(double percentage)
+{
+	m_partyPercents.push_back(percentage);
 }
 
 #endif
