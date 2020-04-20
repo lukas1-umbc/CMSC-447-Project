@@ -8,7 +8,7 @@
 //
 // Original Coder: David Ramsey
 // Most Recent Change: 20 April 2020
-//		- added loadCountyCodes, fixed splitString function, other minor changes
+//		- added loadCountyCodes, fixed splitString function, completed full file read in for precinct voting data
 //
 
 #include <iostream>
@@ -86,20 +86,6 @@ void splitString(string str, string* tokens)
 	}
 	
 	tokens[counter] = str;
-	
-	/*
-	string temp_str = "";
-	stringstream ss(str);
-	
-	int i = 0;
-			
-	//for(int i = 0; i < 10; i++)
-	while(getline(ss, temp_str, ','))
-	{
-		tokens[i] = temp_str;
-		i++;
-	}
-	*/
 }
 
 // loadCountyCodes(): Reads in the county names, and codes, and then
@@ -118,6 +104,8 @@ void loadCountyCodes()
 		getline(g_inFile, data);
 		while(getline(g_inFile, data))
 		{
+			// Split the data into the names, and codes
+			// then add them to the map
 			splitString(data, line);
 			g_CountyCodes.insert(pair<string, string>(line[0], line[1]));
 		}
@@ -126,14 +114,22 @@ void loadCountyCodes()
 	}
 }
 
-// ---IN PROGRESS---
+
 // loadPrecinctData(): Loads in the precinct data from the given file
 void loadPrecinctData()
 {
-	// Each party will have a number associate with it in the precinct object,
-	// this will be determined by how they are laid out in the data file.
-	// They are as follows:
-	// Democrat = 0, Green = 1, Libertarian = 2, Other Parties = 3, Republican = 4, Unaffiliated = 5
+	/******************************* Notes **************************************
+								---IN PROGRESS---
+	TODO: Get precinct voter population from precinct 2010 data file
+	
+	Each party will have a number associate with it in the precinct object,
+	this will be determined by how they are laid out in the data file.
+	They are as follows:
+	Democrat = 0, Green = 1, Libertarian = 2, Other Parties = 3, Republican = 4, Unaffiliated = 5
+	
+	Precinct IDs are added to county codes in the following form:
+    Allegany county code = 24001, precinct 1 id = 001-000 => 24001001-000
+	****************************************************************************/
 	
 	int counter = 0;
 	int totalVoterCount = 0;
@@ -156,58 +152,57 @@ void loadPrecinctData()
 		// The first line just has the column headers
 		getline(g_inFile, data);
 		
-		// This loop only reads in the data for the first two
-		// Precincts, it is incomplete
-		// Still needed: add county codes to precinct ids
-		//               need to iterate through entire dataset
 		// Start reading in valid data
-		for(int k = 0; k < 13; k++)
+		while(getline(g_inFile, data))
 		{
-			getline(g_inFile, data);
 			splitString(data, line);
-		
 			
 			// Some of the data entries are empty. They are signafied
 			// by the phrase "Unable to Determine" in the precinct id line
 			if(line[3] != "Unable to Determine")
 			{
-				// If this is the first loop, get initial pricinct id
+				// If this is the first loop, get initial pricinct id and create new precinct object
 				if(precinctID == "")
 				{
 					newPrecinct = new Precinct();
-					
-					// Need to get the county code and then add the id to it
 					precinctID = line[3];
 				}
+
+				// Save voter count arranged by the party number formatted listed above
+				voterCount[counter] = stoi(line[9]);
+				counter++;
 				
-				// If the new line has data for a different precinct, add current data to precinct
-				// and then add it to g_Precincts, then create a new 
-				if(precinctID != line[3])
-				{
-					newPrecinct->setId(precinctID);
+				// If all the data is read in for a precinct (6 lines of data), then complete
+				// the precinct and add it to the precinct list
+				if(counter == 6)
+				{	
+					// This segment is needed (I wasn't able to just append the county code because
+					// there was some weird formatting) to clean up the county code, and then
+					// get it formatted properly
+					string temp = "";
+					temp.append(to_string(stoi(g_CountyCodes.find(line[0])->second)));
+					temp.append(line[3]);
+					newPrecinct->setId(temp);
 					
-					// get the total amount of voters to find percentage of each party
+					// Get the total amount of voters to find percentage of each party
 					for(int i = 0; i < 6; i++)
 					{
 						totalVoterCount += voterCount[i];
 					}
 					
-					// add percentage for each party to m_partyPercents
+					// Add percentage for each party to m_partyPercents
 					for(int i = 0; i < 6; i++)
 					{
 						newPrecinct->addPartyPercentage(voterCount[i]/(double)totalVoterCount);
 					}
-
+						
 					// Add the precinct to g_Precincts, then reset data and create new precinct
 					g_Precincts.push_back(newPrecinct);
 					newPrecinct = new Precinct();
-					precinctID = line[3];
 					totalVoterCount = 0;
 					counter = 0;
+
 				}
-				
-				voterCount[counter] = stoi(line[9]);
-				counter++;
 			}
 		}
 		g_inFile.close();
@@ -227,8 +222,13 @@ int main() {
 	cout << "My precinct's id is " << myPrecinct.getId() << endl;
 
 	loadPrecinctData();
-	g_Precincts[0]->print();
-	g_Precincts[1]->print();
+	
+
+	for(int i = 0; i < (int) g_Precincts.size(); i++)
+	{
+		g_Precincts[i]->print();
+	}
+
 	
 	// Free all data
 	clearAll();
