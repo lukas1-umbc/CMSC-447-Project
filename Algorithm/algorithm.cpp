@@ -7,14 +7,15 @@
 //		- district.h - contains the District class and methods
 //
 // Original Coder: David Ramsey
-// Most Recent Change: 19 April 2020
-//		- added loadPrecinctData, and splitString functions
+// Most Recent Change: 20 April 2020
+//		- added loadCountyCodes, fixed splitString function, other minor changes
 //
 
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <map>
 
 #include "precinct.h"
 #include "district.h"
@@ -22,7 +23,8 @@
 using namespace std;
 
 /**** CONSTANTS ****/
-const string IN_FILE_NAME = "2018_eligible_voters_by_precinct.csv";
+const string IN_DATA_FILE_NAME = "2018_eligible_voters_by_precinct.csv";
+const string IN_CODE_FILE_NAME = "md_county_codes.csv";
 const string OUT_FILE_NAME = "newDistricts.txt";
 
 /***** GLOBALS *****/
@@ -34,6 +36,9 @@ ofstream g_outFile;
 int g_NumParties;
 vector<Precinct*> g_Precincts;
 vector<District*> g_Districts;
+
+// Data
+map<string, string> g_CountyCodes;
 
 /**** FUNCTIONS ****/
 // clearAll(): Frees all dynamically allocated memory
@@ -65,15 +70,59 @@ void clearAll()
 //           string* tokens, a given array that will be filled with the tokens
 void splitString(string str, string* tokens)
 {
-	// For some reason is dropping the first character???
-	// We don't need it, but I don't like it >=[
+	string delimiter = ",";
+	string temp_str = "";
+	
+	size_t pos = 0;
+	
+	int counter = 0;
+	
+	while ((pos = str.find(delimiter)) != std::string::npos)
+	{
+		temp_str = str.substr(0, pos);
+		tokens[counter] = temp_str;
+		str.erase(0, pos + delimiter.length());
+		counter++;
+	}
+	
+	tokens[counter] = str;
+	
+	/*
 	string temp_str = "";
 	stringstream ss(str);
 	
-	for(int i = 0; i < 10; i++)
+	int i = 0;
+			
+	//for(int i = 0; i < 10; i++)
+	while(getline(ss, temp_str, ','))
 	{
-		getline(ss, temp_str, ',');
 		tokens[i] = temp_str;
+		i++;
+	}
+	*/
+}
+
+// loadCountyCodes(): Reads in the county names, and codes, and then
+//                    loads them into a map for easy access
+void loadCountyCodes()
+{
+	string data = "";
+	string line[2];
+	
+	// Open the data file
+	g_inFile.open(IN_CODE_FILE_NAME);
+	if(g_inFile.is_open())
+	{
+		// Read in the first line of the file and discard it
+		// The first line just has the column headers
+		getline(g_inFile, data);
+		while(getline(g_inFile, data))
+		{
+			splitString(data, line);
+			g_CountyCodes.insert(pair<string, string>(line[0], line[1]));
+		}
+			
+		g_inFile.close();
 	}
 }
 
@@ -96,8 +145,11 @@ void loadPrecinctData()
 	
 	Precinct* newPrecinct;
 	
+	// Load in the county codes for precinct IDs
+	loadCountyCodes();
+	
 	// Open the data file
-	g_inFile.open(IN_FILE_NAME);
+	g_inFile.open(IN_DATA_FILE_NAME);
 	if(g_inFile.is_open())
 	{
 		// Read in the first line of the file and discard it
@@ -106,51 +158,59 @@ void loadPrecinctData()
 		
 		// This loop only reads in the data for the first two
 		// Precincts, it is incomplete
-		// Still needed: edge cases (for odd entries in data)
-		//               add county codes to precinct ids
+		// Still needed: add county codes to precinct ids
 		//               need to iterate through entire dataset
 		// Start reading in valid data
 		for(int k = 0; k < 13; k++)
 		{
 			getline(g_inFile, data);
 			splitString(data, line);
+		
 			
-			// If this is the first loop, get initial pricinct id
-			if(precinctID == "")
+			// Some of the data entries are empty. They are signafied
+			// by the phrase "Unable to Determine" in the precinct id line
+			if(line[3] != "Unable to Determine")
 			{
-				newPrecinct = new Precinct();
-				precinctID = line[3];
-			}
-			
-			// If the new line has data for a different precinct, add current data to precinct
-			// and then add it to g_Precincts, then create a new 
-			if(precinctID != line[3])
-			{
-				newPrecinct->setId(precinctID);
-				
-				// get the total amount of voters to find percentage of each party
-				for(int i = 0; i < 6; i++)
+				// If this is the first loop, get initial pricinct id
+				if(precinctID == "")
 				{
-					totalVoterCount += voterCount[i];
+					newPrecinct = new Precinct();
+					
+					// Need to get the county code and then add the id to it
+					precinctID = line[3];
 				}
 				
-				// add percentage for each party to m_partyPercents
-				for(int i = 0; i < 6; i++)
+				// If the new line has data for a different precinct, add current data to precinct
+				// and then add it to g_Precincts, then create a new 
+				if(precinctID != line[3])
 				{
-					newPrecinct->addPartyPercentage(voterCount[i]/(double)totalVoterCount);
-				}
+					newPrecinct->setId(precinctID);
+					
+					// get the total amount of voters to find percentage of each party
+					for(int i = 0; i < 6; i++)
+					{
+						totalVoterCount += voterCount[i];
+					}
+					
+					// add percentage for each party to m_partyPercents
+					for(int i = 0; i < 6; i++)
+					{
+						newPrecinct->addPartyPercentage(voterCount[i]/(double)totalVoterCount);
+					}
 
-				// Add the precinct to g_Precincts, then reset data and create new precinct
-				g_Precincts.push_back(newPrecinct);
-				newPrecinct = new Precinct();
-				precinctID = line[3];
-				totalVoterCount = 0;
-				counter = 0;
+					// Add the precinct to g_Precincts, then reset data and create new precinct
+					g_Precincts.push_back(newPrecinct);
+					newPrecinct = new Precinct();
+					precinctID = line[3];
+					totalVoterCount = 0;
+					counter = 0;
+				}
+				
+				voterCount[counter] = stoi(line[9]);
+				counter++;
 			}
-			
-			voterCount[counter] = stoi(line[9]);
-			counter++;
 		}
+		g_inFile.close();
 	}
 }
 
