@@ -1,12 +1,14 @@
 /***********************************************************************
-mappy.js file updated by Lukas Mueller on April 17, 2020.
+mappy.js file updated by Kavya Kavanakudy on April 19, 2020.
 This is the .js file that interacts with the API in order to display a 
 map of a GEOJSON file provided by the algorithm
 ***********************************************************************/
 
 //The source files for geojson data
-var districtData ="districts.geojson"
-var precinctData = "precinct2010.geojson"
+
+var MDdistrictData ="districts.geojson"
+var MDprecinctData = "precinct2010.geojson"
+var SCprecinctData = "2013_sc_precincts.geojson"
 
 /****************************************
   A varialbe that stores how the 
@@ -53,11 +55,12 @@ var styleFunction = function(feature) {
 
 /******************************************************
 Creates a group of layers: one layer is the base map 
-layer, and the other is the district geojson data with
-the appropriate style. 
+layer, the other is the MD district geojson data with
+the appropriate style and the final layer is the 
+MD precinct geojson Data
 ******************************************************/
 
-var districtGroup = new ol.layer.Group({
+var MDdistrictGroup = new ol.layer.Group({
     layers:[
 
       new ol.layer.Tile({
@@ -66,20 +69,34 @@ var districtGroup = new ol.layer.Group({
 
       new ol.layer.Vector({
         source: new ol.source.Vector({
-        url: districtData,
-        format: new ol.format.GeoJSON(),
+        	url: MDdistrictData,
+        	format: new ol.format.GeoJSON(),
         }),
         style: styleFunction
-      })
+      }),
+      new ol.layer.Vector({
+      	source: new ol.source.Vector({
+      		url: MDprecinctData,
+      		format: new ol.format.GeoJSON(),
+      	}),
+      	style: new ol.style.Style({
+        	stroke: new ol.style.Stroke({
+          	color: 'rgba(0,0,0,1)',
+          	width: .5
+        	})
+      	})
+    })
     ]
 })
 
+
 /******************************************************
-Creates a vector layer containing the precict 
-geojson data and the style is just a black outline
+Creates a group of layers: one layer is the base map 
+layer, and the other is the SC precinct geojson data with
+the appropriate style. 
 ******************************************************/
 
-var precinctGroup = new ol.layer.Group({
+var SCdistrictGroup = new ol.layer.Group({
   layers:[
 
     new ol.layer.Tile({
@@ -88,8 +105,8 @@ var precinctGroup = new ol.layer.Group({
 
     new ol.layer.Vector({
       source: new ol.source.Vector({
-      url: precinctData,
-      format: new ol.format.GeoJSON(),
+      	url: SCprecinctData,
+      	format: new ol.format.GeoJSON(),
       }),
       style: new ol.style.Style({
         stroke: new ol.style.Stroke({
@@ -101,46 +118,70 @@ var precinctGroup = new ol.layer.Group({
   ]
 })
 
-var precinctLayer = new ol.layer.Vector({
-    source: new ol.source.Vector({
-    url: precinctData,
-    format: new ol.format.GeoJSON(),
-  }),
-  style: new ol.style.Style({
-    stroke: new ol.style.Stroke({
-      color: 'rgba(0,0,0,1)',
-      width: .5
-    })
-  })
-});
 
 /******************************************************
 The following displays the map with an 
-open street maps layer, the district layer and 
-precinct layer. The map is centered on Maryland.
+open street maps layer, and is centered on the USA
 ******************************************************/
 
 var map = new ol.Map({
 
     target: 'map',
 
-    layers: precinctGroup,
+    layers: [
+     	new ol.layer.Tile({
+      		source: new ol.source.OSM()
+    	})
+    ],
 
     view: new ol.View({
-        //lon, lat coordinates for maryland
-        center: ol.proj.fromLonLat([-76.641273, 39.045753]),
-        zoom: 7.5
+        //lon, lat coordinates for center of the USA
+        center: ol.proj.fromLonLat([-98.58333333, 39.83333333]),
+        zoom: 4
    })
 
 });
 
 /******************************************************
-Sets an event for when the Run button is pressed.
-The layer group being displayed on the map is switched 
-to the district group.
+The following displays the apporitate state information
+based on what the user selects.
 ******************************************************/
 
 var button = document.getElementById("mapswitcher");
+
+
 button.addEventListener("click", function(){
-    map.setLayerGroup(districtGroup)
+	
+	var state = document.getElementById("selectState").value;
+
+	if(state == 'Maryland'){
+    	map.setLayerGroup(MDdistrictGroup)
+    	map.setView(
+    		new ol.View({
+        		//lon, lat coordinates for Maryland
+        		center: ol.proj.fromLonLat([-76.641273, 39.045753]),
+        		zoom: 7.5
+   			})
+    	)
+    }
+
+    else if(state == 'South Carolina'){
+    	map.setLayerGroup(SCdistrictGroup)
+    	map.setView(
+    		new ol.View({
+        		//lon, lat coordinates for South Carolina
+        		center: ol.proj.fromLonLat([-81.163727, 33.836082]),
+        		zoom: 7.5
+   			})
+    	)
+    }
+
+   else{
+   		window.alert("Please select a state")
+   }
 });
+
+
+
+
+
