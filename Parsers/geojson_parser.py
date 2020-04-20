@@ -10,8 +10,8 @@ def parseMDCountyCodes(filename):
 
     countyCodes = {}
 
-    with open(filename) as precinct_file:
-        data = json.load(precinct_file)
+    with open(filename) as precinctFile:
+        data = json.load(precinctFile)
 
     #populate the dictionary
     for feature in data["features"]:
@@ -19,7 +19,7 @@ def parseMDCountyCodes(filename):
         line = line.split("Precinct")
         countyCodes[line[0].strip()] = line[1].split()[1]
     
-    precinct_file.close()
+    precinctFile.close()
 
     return countyCodes
 
@@ -29,8 +29,8 @@ def parseMDPrecNbrs(filename):
 
     precNbrs = {}
 
-    with open(filename) as precinct_file:
-        data = json.load(precinct_file)
+    with open(filename) as precinctFile:
+        data = json.load(precinctFile)
 
     #populate the dictionary
     for feature in data["features"]:
@@ -41,25 +41,25 @@ def parseMDPrecNbrs(filename):
 def main():
 
     #write all the counties + their codes to a csv
-    county_file = open("md_county_codes.csv", "w+", newline='')
+    countyFile = open("md_county_codes.csv", "w+", newline='')
     countyCodes = parseMDCountyCodes("md_precinct2010.geojson")
 
-    writer = csv.writer(county_file)
+    writer = csv.writer(countyFile)
     writer.writerow(["County", "Code"])
     
     for county in countyCodes:
         writer.writerow([county, countyCodes[county]])
-    county_file.close()
+    countyFile.close()
 
     #write all precincts + their neighbors to a file
-    nbr_file = open("md_precinct_neighbors.txt", "w+")
+    nbrFile = open("md_precinct_neighbors.txt", "w+")
     precNbrs = parseMDPrecNbrs("md_precinct2010.geojson")
     for precinct in precNbrs:
         #6 precincts do not have neighbor lists
         if precNbrs[precinct]:
-            nbr_file.write(precinct + ": " + precNbrs[precinct] + "\n")
+            nbrFile.write(precinct + ": " + precNbrs[precinct] + "\n")
         else:
-            nbr_file.write(precinct + "\n")
-    nbr_file.close()
+            nbrFile.write(precinct + "\n")
+    nbrFile.close()
 
 main()
