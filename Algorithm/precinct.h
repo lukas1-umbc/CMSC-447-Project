@@ -3,8 +3,8 @@
 //		None
 //
 // Original Coder: David Ramsey
-// Most Recent Change: 19 April 2020
-//		- added addPartyPercentage function
+// Most Recent Change: 20 April 2020
+//		- Moved m_neighbors to be a public variable
 //
 
 
