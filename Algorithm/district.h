@@ -48,8 +48,7 @@ public:
     int checkMajorityParty();
     void manageEdges();
     vector<Precinct*> m_precincts;          // list of pointers to district's precincts
-    vector<Precinct*> m_edgePrecincts;      // member precinct's that are at the district's border \
-, semi-redundant to m_precincts
+    vector<Precinct*> m_edgePrecincts;      // member precinct's that are at the district's border, semi-redundant to m_precincts
 
 
 };
@@ -123,14 +122,14 @@ int District::checkMajorityParty()
 void District::manageEdges()
 {
     //Iterate though all edge precincts
-    for(int i=0; i<m_edgePrecincts.size();i++)
+    for(int i=0; i< (int) m_edgePrecincts.size();i++)
     {
         //Iterate through the neighbors of each edge precinct
-        for(int j=0; j<m_edgePrecincts[i]->m_neighbors.size(); j++)
+        for(int j=0; j< (int) m_edgePrecincts[i]->m_neighbors.size(); j++)
         {
 
             //Check which neighbors are inside of the current district
-            for(int k=0; k<m_precincts.size(); k++)
+            for(int k=0; k< (int) m_precincts.size(); k++)
 	    {
 	        //Check if the neighbor is already in the current district
 	        if(m_precincts[k]->getId() == m_edgePrecincts[i]->m_neighbors[j]->getId())

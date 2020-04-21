@@ -8,7 +8,7 @@
 //
 // Original Coder: David Ramsey
 // Most Recent Change: 20 April 2020
-//		- added loadCountyCodes, fixed splitString function, completed full file read in for precinct voting data
+//		- added loadCountyCodes, fixed splitString function, completed full file read in for precinct voting data, added loadPrecinctPop
 //
 
 #include <iostream>
@@ -24,6 +24,7 @@ using namespace std;
 
 /**** CONSTANTS ****/
 const string IN_DATA_FILE_NAME = "2018_eligible_voters_by_precinct.csv";
+const string IN_POP_FILE_NAME = "Precinct2010_83NadMeters.csv";
 const string IN_CODE_FILE_NAME = "md_county_codes.csv";
 const string OUT_FILE_NAME = "newDistricts.txt";
 
@@ -88,6 +89,45 @@ void splitString(string str, string* tokens)
 	tokens[counter] = str;
 }
 
+void loadPrecinctPop()
+{
+	string temp = "";
+	string data = "";
+	string line[30];
+	
+	// Open the data file
+	g_inFile.open(IN_POP_FILE_NAME);
+	if(g_inFile.is_open())
+	{
+		// Read in the first line of the file and discard it
+		// The first line just has the column headers
+		getline(g_inFile, data);
+
+		while(getline(g_inFile, data))
+		{
+			// Split the data to get the IDs and population sizes
+			splitString(data, line);
+			
+			// Search for each precinct by id, then add its population
+			for(int i = 0; i < (int) g_Precincts.size(); i++)
+			{
+				// This little maneuver is to deal with the fact that the file that
+				// holds the population data has a *slightly* different id to the ones
+				// that we have for each precinct. When they concatenated the two numbers for
+				// the file, they removed the first 0 from the precinct id. So, I remove that
+				// 0 from our id and them compare
+				temp = g_Precincts[i]->getId();
+				temp.erase(temp.begin() + 5);
+				if(temp.compare(line[4]) == 0) {
+					g_Precincts[i]->setTotalPop(stoi(line[17]));
+				}
+			}
+		}
+		
+		g_inFile.close();
+	}
+}
+
 // loadCountyCodes(): Reads in the county names, and codes, and then
 //                    loads them into a map for easy access
 void loadCountyCodes()
@@ -102,6 +142,7 @@ void loadCountyCodes()
 		// Read in the first line of the file and discard it
 		// The first line just has the column headers
 		getline(g_inFile, data);
+		
 		while(getline(g_inFile, data))
 		{
 			// Split the data into the names, and codes
@@ -119,9 +160,6 @@ void loadCountyCodes()
 void loadPrecinctData()
 {
 	/******************************* Notes **************************************
-								---IN PROGRESS---
-	TODO: Get precinct voter population from precinct 2010 data file
-	
 	Each party will have a number associate with it in the precinct object,
 	this will be determined by how they are laid out in the data file.
 	They are as follows:
@@ -222,13 +260,12 @@ int main() {
 	cout << "My precinct's id is " << myPrecinct.getId() << endl;
 
 	loadPrecinctData();
+	loadPrecinctPop();
 	
-
 	for(int i = 0; i < (int) g_Precincts.size(); i++)
 	{
 		g_Precincts[i]->print();
 	}
-
 	
 	// Free all data
 	clearAll();
