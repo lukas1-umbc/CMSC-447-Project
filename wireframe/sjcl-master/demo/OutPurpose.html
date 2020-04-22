@@ -1,12 +1,10 @@
-<!--The following file was updated by Kavya Kavanakudy on April 19, 2020-->
 <!DOCTYPE HTML>
 <html>
 
 <head>
-
+	<meta charset="utf-8">
     <title> Full Swing System </title>
-    <!--need this  for firefox-->
-    <meta charset="utf-8"/>
+    
     <style>
         ul {
             display: table;
@@ -20,15 +18,16 @@
         }
 
     </style>
-    <script type="text/javascript" src="./Hash_Check.js"></script>
-	<script type="text/javascript" src="./sjcl-master/sjcl.js"></script>
+	
+	<script type="text/javascript" src="./ourPurposeHash.js"></script>
+	<script type="text/javascript" src="../sjcl.js"></script>
 </head>
 
 <body>
 
     <div>
     <p align='center'>
-        <span style="font-size:20px"><strong>Welcome to the full swing system</strong></span>
+        <span style="font-size:20px"><strong>Welcome to the Full Swing System</strong></span>
         <br />
         <br />
         <span style="font-size:16px">This system will re-draw the districts of a state to make it a swing state.</br>
@@ -40,19 +39,8 @@
     <div>
     <table align='center'>
         <tbody>
-             <tr>
-                <td align='center'>
-                    <br />
-                    <select id = "selectState" style="font-size:15px">
-                        <option value=''>--Select State--</option>
-                        <option value='Maryland'>Maryland</option>
-                        <option value='South Carolina'>South Carolina</option>
-                    </select>
-                    &nbsp;&nbsp;&nbsp;&nbsp;
-                    <button id="mapswitcher" type="button" style="font-size:15px">Run</button>
-                </td>
-            </tr>
             <tr> 
+			
                 <td colspan='2' align='center'> 
                     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.3.1/css/ol.css" type="text/css">
                     <style>
@@ -66,12 +54,31 @@
 
                     <h2>Map</h2>
                     <div id="map" class="map"></div>
+                    <br />
+					
+					
+					
+					
+					<!-- onchange="checkHash(this)" -->
+					
+                    <select id="stateSwitcher" style="font-size:15px" >
+                        <option  value=''>--Select State--</option>
+                        <option  value='Maryland'>Maryland</option>
+                    </select>
+					
+	
+					
+					
+					
+					
+					
+					
+					
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <button id="mapswitcher" type="button" style="font-size:15px">Run</button>
                     <script src="./mappy.js"></script>
-                    <script src="./lib/v6.3.1/build/ol.js"></script>
-
                 </td>
             </tr>
-           
         </tbody>
         
         <tfoot>
@@ -87,18 +94,12 @@
                         <li><a href="url">link three</a></li>
                         <li><a href="url">link four</a></li>
 						
-                    </ul>
-					
-					<h5>Check File Integrity</h5>
-					<input type="file" name="fileChecker"
-						id="fileChecker"> 
+						<input type="file" name="inputfile"
+						id="inputfile"> 
+						<li><a href="javascript:checkHash()">checkHash</li>
 						
-					<select id = "selectStateFile" style="font-size:10px">
-                        <option value=''>--Select State--</option>
-                        <option value='Maryland'>Maryland</option>
-                        <option value='South Carolina'>South Carolina</option>
-                    </select>
-					
+						
+                    </ul>
                 </td>
             </tr>
         </tfoot>
