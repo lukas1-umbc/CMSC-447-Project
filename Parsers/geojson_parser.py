@@ -3,6 +3,8 @@
 
 import json
 import csv
+import copy
+import time
 
 #Gets the county codes for each county in Maryland and 
 #stores them as key, value pairs in a dictionary
@@ -23,26 +25,66 @@ def parseMDCountyCodes(filename):
 
     return countyCodes
 
-#Gets the neighboring precincts of each precinct in Maryland
-#and stores them as key, value pairs in a dictionary
+#get list of neighboring precincts for each precinct
+#two precincts are neighbors if they share at least one coordinate
 def parseMDPrecNbrs(filename):
 
-    precNbrs = {}
+    start = time.time()
+
+    #precinct VTD as keys, list of coordinates as values
+    precinctDict = {}
 
     with open(filename) as precinctFile:
         data = json.load(precinctFile)
 
-    #populate the dictionary
+    #populate precinctDict
     for feature in data["features"]:
-        precNbrs[feature["properties"]["VTD"]] = feature["properties"]["NEIGHBORS"]
+
+        code = feature["properties"]["VTD"]
+        coordList = feature["geometry"]["coordinates"][0]
+        precinctDict[code] = coordList
+
+    precinctFile.close()
+
+    #deep copy of precinctDict for comparisons
+    otherPrecincts = copy.deepcopy(precinctDict)
+    #precinct VTD as keys, list of neighbor precincts as values
+    precinctNbrs = {}
+
+    for precinct in precinctDict:
         
-    return precNbrs
+        precinctCoords = precinctDict[precinct]
+
+        precinctNbrs[precinct] = []
+
+        #compare every precinct to every other precinct
+        for potentialNbr in otherPrecincts:
+
+            #don't compare precinct to self
+            if precinct != potentialNbr:
+
+                nbrCoords = otherPrecincts[potentialNbr]
+
+                #check for coordinate matches
+                for coord in precinctCoords:
+
+                    #precinct and potentialNbr share a coordinate, so they are neighbors
+                    if coord in nbrCoords:
+
+                        precinctNbrs[precinct].append(potentialNbr)
+                        break
+
+    print("Neighbor parser took " + str(round((time.time() - start)/60, 2)) + " minutes")
+
+    return precinctNbrs
 
 def main():
 
+    filename = "md_precinct2010.geojson"
+
+    countyCodes = parseMDCountyCodes(filename)
     #write all the counties + their codes to a csv
     countyFile = open("md_county_codes.csv", "w+", newline='')
-    countyCodes = parseMDCountyCodes("md_precinct2010.geojson")
 
     writer = csv.writer(countyFile)
     writer.writerow(["County", "Code"])
@@ -51,15 +93,11 @@ def main():
         writer.writerow([county, countyCodes[county]])
     countyFile.close()
 
-    #write all precincts + their neighbors to a file
+    precinctNbrs = parseMDPrecNbrs(filename)
+    #write all the precinct + their neighbors to a txt file
     nbrFile = open("md_precinct_neighbors.txt", "w+")
-    precNbrs = parseMDPrecNbrs("md_precinct2010.geojson")
-    for precinct in precNbrs:
-        #6 precincts do not have neighbor lists
-        if precNbrs[precinct]:
-            nbrFile.write(precinct + ": " + precNbrs[precinct] + "\n")
-        else:
-            nbrFile.write(precinct + "\n")
+    for precinct in precinctNbrs:
+        nbrFile.write(precinct + ": " + str(precinctNbrs[precinct]) + "\n")
     nbrFile.close()
 
 main()
