@@ -1,4 +1,4 @@
-#maryland_geo_parser.py file written by Lukas Mueller on 4/19/20.
+#md_geo_parser.py file written by Lukas Mueller on 4/19/20.
 #This program parses the geojson files for the necessary data.
 
 import json
