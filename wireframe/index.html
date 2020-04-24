@@ -5,7 +5,6 @@
 <head>
 
     <title> Full Swing System </title>
-    <!--need this  for firefox-->
     <meta charset="utf-8"/>
     <style>
         ul {
@@ -21,7 +20,7 @@
 
     </style>
     <script type="text/javascript" src="./Hash_Check.js"></script>
-	<script type="text/javascript" src="./sjcl-master/sjcl.js"></script>
+    <script type="text/javascript" src="./sjcl-master/sjcl.js"></script>
 </head>
 
 <body>
@@ -50,6 +49,8 @@
                     </select>
                     &nbsp;&nbsp;&nbsp;&nbsp;
                     <button id="mapswitcher" type="button" style="font-size:15px">Run</button>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <button id="btnReset" type="button" style="font-size:15px">Reset</button>
                 </td>
             </tr>
             <tr> 
@@ -67,9 +68,20 @@
                     <h2>Map</h2>
                     <div id="map" class="map"></div>
                     <script src="./mappy.js"></script>
-                    <script src="./lib/v6.3.1/build/ol.js"></script>
 
                 </td>
+            </tr>
+            <tr>
+            	<td align = 'center'>
+            		<br />
+            		<textarea id = "text" rows = "1" cols = "100" maxlength="250">
+            			Enter Text Here
+            		</textarea>
+            	</td>
+            	<script type="text/javascript" src="ckeditor/ckeditor.js"></script>
+            	<script type="text/javascript">
+        			CKEDITOR.replace( 'text' );
+      			</script>
             </tr>
            
         </tbody>
@@ -86,19 +98,19 @@
                         <li><a href="https://planning.maryland.gov/Redistricting/Pages/2010/precinct.aspx">Maryland Precinct Shapefile (2010)</a></li>
                         <li><a href="https://www.scvotes.org/results-statistics">South Carolina Voter Data</a></li>
                         <li><a href="https://github.com/aaron-strauss/precinct-shapefiles/tree/master/sc">South Carolina Shapefile</a></li>
-						
+                        
                     </ul>
-					
-					<h5>Check File Integrity</h5>
-					<input type="file" name="fileChecker"
-						id="fileChecker"> 
-						
-					<select id = "selectStateFile" style="font-size:10px">
+                    
+                    <h5>Check File Integrity</h5>
+                    <input type="file" name="fileChecker"
+                        id="fileChecker"> 
+                        
+                    <select id = "selectStateFile" style="font-size:10px">
                         <option value=''>--Select State--</option>
                         <option value='Maryland'>Maryland</option>
                         <option value='South Carolina'>South Carolina</option>
                     </select>
-					
+                    
                 </td>
             </tr>
         </tfoot>
