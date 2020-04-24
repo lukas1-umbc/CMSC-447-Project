@@ -6,10 +6,10 @@
 //		- None
 //
 // Original Coder: David Ramsey
-// Most Recent Change: 22 April 2020
-// 	- Initial creation, get parties functions, get precincts function reads in precinct names and number of voters but having
-// 	bugs getting party numbers, dump functions for testing, having trouble with dump precincts printing party numbers, party
-// 	and precinct structures.
+// Most Recent Change: 24 April 2020
+// 	- Fixed bug with getting/dumping precinct party voters info, it was a simple issue with the dump function.
+// 	- Non-significant parties are now calculated and removed before writing output.
+// 	- Skeleton of output function added.
 //
 
 #include <iostream>
@@ -69,11 +69,12 @@ public:
 /******* Constants - Globals ******/
 // File I/O //
 const string IN_FILE_NAME = "../../South_Carolina_2016_Precinct_Election_Data.csv";
-string g_outFileName;
+const string g_OUT_FILE_NAME = "Processed_SC_Voter_Data.csv";
 ifstream g_inFile;
 ofstream g_outFile;
 
 // Parsing //
+const double SIG_THRESHOLD = 0.12;
 vector<Party*> g_partyList;
 vector<Precinct*> g_precinctList;
 
@@ -124,29 +125,33 @@ void dumpParties()
 	party = NULL;
 }
 
-// dumpPrecincts(): print information of each precinct in precinct list. // UNFINISHED
+// dumpPrecincts(): print information of each precinct in precinct list.
 void dumpPrecincts()
 {
 	// Init
 	Precinct* precinct;
 	
 	// Dump each precincts information
+	cout << endl;
 	for(int i = 0; i < (int)g_precinctList.size(); i++)
 	{
+		// print precinct
 		precinct = g_precinctList[i];
 		if(precinct != NULL)
 		{
-			// print id
+			// print id and numVoters
 			cout << precinct->m_id << " ";
+			cout << precinct->m_numVoters << " ";
+
 			// print partyNumbers
-			for(int k = 0; (int)g_partyList.size(); k++)
+			for(int k = 0; k < (int)g_partyList.size(); k++)
 			{
 				cout << precinct->m_partyNumbers[k] << " ";
 			}
-			// print numVoters
-			cout << precinct->m_numVoters << endl;
 		}
+		cout << endl;
 	}
+	cout << endl;
 }
 
 // HELPERS //
@@ -214,9 +219,15 @@ void getPrecincts()
 		// get num voters for each party
 		for(int i = 0; i < (int)g_partyList.size(); i++)
 		{
+			// ignore leading comma
 			getline(ss, ignore, ',');
+			
+			// get number of voters
 			ss >> numField;
 			newPrecinct->m_partyNumbers[i] = numField;
+		
+			// tally total voters to party
+			g_partyList[i]->m_numVoters += numField;
 		}
 
 		// add precinct
@@ -228,24 +239,64 @@ void getPrecincts()
 	newPrecinct = NULL;
 }
 
+// findSigParties(): finds significant parties, gets rid of non-significant parties.
+// Assumes input file has been fully parsed
+void findSigParties()
+{
+	// Find total num of voters
+	int total = 0;
+	for(int i = 0; i < (int)g_partyList.size(); i++)
+	{
+		total += g_partyList[i]->m_numVoters;
+	}
+	
+	// Get rid of non-significant parties
+	double percent;
+	for(int i = 0; i < (int)g_partyList.size(); i++)
+	{
+		percent = (double)g_partyList[i]->m_numVoters / (double)total;
+		if(percent < SIG_THRESHOLD)
+		{
+			delete g_partyList[i];
+			g_partyList[i] = NULL;
+		}
+	}
+}
+
+// writeProcessedFile(): 
+// requirements: - assumes input file has been fully parsed
+// Misc: not required, but intended to be ran after non-significant parties have been removed 
+void writeProcessedFile()
+{
+	
+}
+
 /******* Main ********/
 int main() {
-	
-	string ignore;
 
+	// Init	
+	string ignore;
 	g_inFile.open(IN_FILE_NAME);
 	
+	// Parse headers
 	getParties();
-	dumpParties();
-	
-	// Dump header line
 	getline(g_inFile, ignore);
 	
+	// Parse precinct info
 	getPrecincts();
+
+	// For Testing
+	dumpParties();
 	dumpPrecincts();
 
-	g_inFile.close();
+	// Get rid of non-significant parties
+	findSigParties();
 
+	// Process information and write to formatted file
+	writeProcessedFile();
+
+	// Clean up
+	g_inFile.close();
 	clearAll();
 
 	return 0;
