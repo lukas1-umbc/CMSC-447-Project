@@ -316,15 +316,23 @@ void parsePrecinctData()
 	g_outFile.open(OUT_PARSED_FILE_NAME);
 	if(g_outFile.is_open())
 	{
+		// Print the total number of districts in md
+		g_outFile << "8\n";
+		
+		// Print the total number of parties being considered by the algorithm
 		g_outFile << totalParties << "\n";
 		
+		// Print which ones they are
 		for(int i = 0; i < 5; i++)
 		{
 			g_outFile << whichParties[i] << ",";
 		}
 		
+		// This is just the layout of each row of data
 		g_outFile << "\nPrecinctID,PrecinctPop,DemocratP,GreenP,LibertarianP,OtherPartiesP,RepublicanP\n";
 		
+		
+		// Output data to file
 		for(int i = 0; i < (int) originalData.size(); i++)
 		{
 			splitString(originalData[i], line);
