@@ -27,6 +27,7 @@ using namespace std;
 //*** Temp variables for testing, delete later
 const int NUM_DISTRICTS = 8; //cheating, using as place holder for now
 const string IN_FILE = "md_parsed_data.txt";
+const string NEIGHBOR_FILE = "md_precinct_neighbors.txt";
 
 
 enum {DEMOCRAT, GREEN, LIBERTARIAN, OTHER, REPUBLICAN};
@@ -81,6 +82,8 @@ int main() {
 	string currentLine; //For reading line by line
 	char* charArray = new char[256]; // for converting string line into char*
 
+	string precinctId;
+
 
 
 	//***** Read in Precinct Data ****
@@ -111,6 +114,9 @@ int main() {
 	//Header line, skip over
 	getline(g_inFile, currentLine);
 
+	map<string, int> precinctMap; //use this to track precinct in vector, will use for adding neighbors
+	int precinctCount = 0;
+
 	//Loop to add precincts
 	while(getline(g_inFile, currentLine))
 	{
@@ -126,8 +132,9 @@ int main() {
 
 		//Create new Precicnt
 		Precinct* readInPrecinct = new Precinct();
+		precinctId = strtok(charArray, " \t\v\r\n\f,()");
 
-		readInPrecinct->setId(strtok(charArray, " \t\v\r\n\f,()"));
+		readInPrecinct->setId(precinctId);
 		readInPrecinct->setTotalPop(atoi(strtok(NULL, " \t\v\r\n\f,()")));
 
 		//TODO Figure out if better to grab all party percentages, or just majority. For now, all
@@ -140,6 +147,53 @@ int main() {
 
 		//Add precinct to vector
 		g_Precincts.push_back(readInPrecinct);
+
+		//Add to map
+		precinctMap.insert(pair<string,int>(precinctId, precinctCount));
+		precinctCount++;
+
+	}
+
+	g_inFile.close();
+
+
+	//********* Add neighbor precincts  *********
+	g_inFile.open(NEIGHBOR_FILE);
+	if (!(g_inFile.is_open()))
+	{
+		printf("ERROR trying to open neighbor file. /n");
+		return 1;
+	}
+
+	//loop through each line
+	while(getline(g_inFile, currentLine))
+	{
+		strcpy(charArray, currentLine.c_str());
+
+		precinctId = strtok(charArray, ":");
+		map<string,int>::iterator iter = precinctMap.find(precinctId);
+
+		if(iter == precinctMap.end())
+		{
+			//Somehow this precinct isn't listed, print error for now
+			printf("ERROR! Precinct with id(%s) does not already exist! \n", precinctId);
+			continue;
+		}
+
+		int index = iter->second;
+		Precinct* targetPrecinct = g_Precincts[index];
+
+		//Read up to first '[', signaling start of neighbors
+		precinctId = strtok(NULL, "[");
+
+		//Grab everything up to ']'
+		precinctId = strtok(NULL, "]");
+
+		//Loop through and tokenize the above token
+
+
+
+		//
 
 	}
 
