@@ -81,6 +81,7 @@ int main() {
 
 	string currentLine; //For reading line by line
 	char* charArray = new char[256]; // for converting string line into char*
+	char* charArray2 = new char[256]; //for secondary tokenizing
 
 	string precinctId;
 
@@ -158,6 +159,7 @@ int main() {
 
 
 	//********* Add neighbor precincts  *********
+
 	g_inFile.open(NEIGHBOR_FILE);
 	if (!(g_inFile.is_open()))
 	{
@@ -165,7 +167,7 @@ int main() {
 		return 1;
 	}
 
-	//loop through each line
+	//loop through each line in neighbor list
 	while(getline(g_inFile, currentLine))
 	{
 		strcpy(charArray, currentLine.c_str());
@@ -181,20 +183,45 @@ int main() {
 		}
 
 		int index = iter->second;
-		Precinct* targetPrecinct = g_Precincts[index];
+		Precinct* targetPrecinct = g_Precincts[index]; //The precinct we want to add neighbors to
+
 
 		//Read up to first '[', signaling start of neighbors
 		precinctId = strtok(NULL, "[");
 
+		string listNeighbors;
 		//Grab everything up to ']'
-		precinctId = strtok(NULL, "]");
+		listNeighbors = strtok(NULL, "]");
 
-		//Loop through and tokenize the above token
+		//Move everything grabbed into charArray2 for further tokenizing
+		strcpy(charArray2, listNeighbors.c_str());
 
+		precinctId = strtok(charArray2, " ,'");
+		if(precinctId == nullptr)
+		{
+			//A (') doesn't show up, meaning we have an empty neighbor list ( 401918-001: [])
+			//in that case continue to next line
+			continue;
+		}
 
+		//else, there is at least one neighbor, so keep tonkenizing till we hit the end
+		while(strtok(NULL, "'") != nullptr)
+		{
+			precinctId = strtok(NULL, " ,'");
+			iter = precinctMap.find(precinctId);
 
-		//
+			if(iter == precinctMap.end())
+			{
+				//Somehow this precinct isn't listed, print error for now
+				printf("ERROR! Precinct with id(%s) does not already exist! Cannot add as neighbor \n", precinctId);
+				continue;
+			}
 
+			int index = iter->second;
+			Precinct* targetNeighborPrecinct = g_Precincts[index];
+
+			targetPrecinct->m_neighbors.push_back(targetNeighborPrecinct);
+		}
 	}
 
 
