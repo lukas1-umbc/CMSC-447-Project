@@ -6,10 +6,11 @@
 //		- None
 //
 // Original Coder: David Ramsey
-// Most Recent Change: 24 April 2020
-// 	- Fixed bug with getting/dumping precinct party voters info, it was a simple issue with the dump function.
-// 	- Non-significant parties are now calculated and removed before writing output.
-// 	- Skeleton of output function added.
+// Most Recent Change: 27 April 2020
+//		- Finished output file creation.
+//		- Party class now has m_sig member to flag if it is significant
+//			- non-significant parties no longer destroyed
+//		- Got rid of calls to test functions in main
 //
 
 #include <iostream>
@@ -25,13 +26,15 @@ class Party {
 public:
 	string m_id;		// Party name/id
 	int m_numVoters;	// Total number of people that voted for this party throughout the state
-	
+	bool m_sig;			// If party is significant or not
+
 public:
 	// Construct - Destruct //
 	Party()
 	{
 		m_id = " ";
 		m_numVoters = 0;
+		m_sig = true;
 	}
 
 	~Party()
@@ -43,7 +46,7 @@ public:
 class Precinct {
 public:
 	string m_id;			// Precinct id
-	int m_numVoters;		// Number of *registered* voters
+	int m_numVoters;		// Number of REGISTERED voters
 	int* m_partyNumbers;	// Number of people that voted for each party, won't add up to m_numVoters due to absentees
 	
 public:
@@ -69,12 +72,13 @@ public:
 /******* Constants - Globals ******/
 // File I/O //
 const string IN_FILE_NAME = "../../South_Carolina_2016_Precinct_Election_Data.csv";
-const string g_OUT_FILE_NAME = "Processed_SC_Voter_Data.csv";
+const string OUT_FILE_NAME = "sc_parsed_voter_data.txt";
 ifstream g_inFile;
 ofstream g_outFile;
 
 // Parsing //
 const double SIG_THRESHOLD = 0.12;
+int g_numSigParties;
 vector<Party*> g_partyList;
 vector<Precinct*> g_precinctList;
 
@@ -252,13 +256,14 @@ void findSigParties()
 	
 	// Get rid of non-significant parties
 	double percent;
+	g_numSigParties = (int)g_partyList.size();
 	for(int i = 0; i < (int)g_partyList.size(); i++)
 	{
 		percent = (double)g_partyList[i]->m_numVoters / (double)total;
 		if(percent < SIG_THRESHOLD)
 		{
-			delete g_partyList[i];
-			g_partyList[i] = NULL;
+			g_partyList[i]->m_sig = false;
+			g_numSigParties--;
 		}
 	}
 }
@@ -268,7 +273,68 @@ void findSigParties()
 // Misc: not required, but intended to be ran after non-significant parties have been removed 
 void writeProcessedFile()
 {
+	// Init
+	double percent;
+	int voteTotal;
+	Precinct* precinct;
+
+	// Open output file
+	g_outFile.open(OUT_FILE_NAME);
+
+	// Number of congressional districts
+	g_outFile << 7 << endl;
+
+	// Number of sig parties line
+	g_outFile << g_numSigParties << endl;
 	
+	// Sig party indication line
+	for(int i = 0; i < (int)g_partyList.size(); i++)
+	{
+		if(g_partyList[i]->m_sig)
+		{
+			g_outFile << 1 << ",";
+		}
+		else
+		{
+			g_outFile << 0 << ",";
+		}
+	}
+	g_outFile << endl;
+
+	// Write precinct data header
+	g_outFile << "PrecinctID,RegisteredVoters,";
+	for(int i = 0; i < (int)g_partyList.size(); i++)
+	{
+		g_outFile << g_partyList[i]->m_id << ",";
+	}
+	g_outFile << endl;
+
+	// Write data for each precinct
+	for(int i = 0; i < (int)g_precinctList.size(); i++)
+	{
+		// write precinct id and number of registered voters
+		precinct = g_precinctList[i];
+		g_outFile << precinct->m_id << ",";
+	    g_outFile << precinct->m_numVoters << ",";
+	
+		// calculate total number of actual voters
+		voteTotal = 0;
+		for(int k = 0; k < (int)g_partyList.size(); k++)
+		{
+			voteTotal += precinct->m_partyNumbers[k];
+		}
+
+		// calculate and write affiliation ratio for each party
+		for(int k = 0; k < (int)g_partyList.size(); k++)
+		{
+			percent = (double)precinct->m_partyNumbers[k] / (double)voteTotal;
+			g_outFile << percent << ",";
+		}
+		g_outFile << endl;
+	}
+
+	// Close output file
+	g_outFile.close();
 }
 
 /******* Main ********/
@@ -284,10 +350,6 @@ int main() {
 	
 	// Parse precinct info
 	getPrecincts();
-
-	// For Testing
-	dumpParties();
-	dumpPrecincts();
 
 	// Get rid of non-significant parties
 	findSigParties();
