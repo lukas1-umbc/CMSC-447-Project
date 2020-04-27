@@ -131,7 +131,7 @@ int main() {
 
 		strcpy(charArray, currentLine.c_str());
 
-		//Create new Precicnt
+		//Create new Precinct
 		Precinct* readInPrecinct = new Precinct();
 		precinctId = strtok(charArray, " \t\v\r\n\f,()");
 
@@ -205,9 +205,10 @@ int main() {
 		}
 
 		//else, there is at least one neighbor, so keep tonkenizing till we hit the end
-		while(strtok(NULL, "'") != nullptr)
+		precinctId = strtok(NULL, " ,'");
+		while(precinctId != nullptr)
 		{
-			precinctId = strtok(NULL, " ,'");
+
 			iter = precinctMap.find(precinctId);
 
 			if(iter == precinctMap.end())
@@ -221,6 +222,8 @@ int main() {
 			Precinct* targetNeighborPrecinct = g_Precincts[index];
 
 			targetPrecinct->m_neighbors.push_back(targetNeighborPrecinct);
+
+			precinctId = strtok(NULL, " ,'");
 		}
 	}
 
