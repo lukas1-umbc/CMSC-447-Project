@@ -3,7 +3,11 @@
 //		None
 //
 // Original Coder: David Ramsey
-// Most Recent Change: 20 April 2020
+// Most Recent Change:
+//		29 April 2020
+//		- Added integer to track party majority index
+//
+//		20 April 2020
 //		- Moved m_neighbors to be a public variable
 //
 
@@ -22,6 +26,7 @@ private:
     string m_id;                    // precinct's id or index
     int m_totalPop;	            // the total population
     vector<double> m_partyPercents; // percentage of party affiliation, one entry for each party
+    int m_majorPartyIndex;
     //vector<Precinct*> m_neighbors;// list of pointers to all adjacent precincts
 
 public:
@@ -32,10 +37,12 @@ public:
     // Setters
     void setId(string newId);
     void setTotalPop(int newTotalPop);
+    void setMajorPartyIndex(int newIndex);
 
     // Getters
     string getId();
     int getTotalPop();
+    int getMajorPartyIndex();
 
     // Print
     void print();
@@ -43,6 +50,7 @@ public:
     // Helpers
     int getPartyPop(int partyIndex);
     void addPartyPercentage(double percentage);
+    void updateMajorParty();
     vector<Precinct*> m_neighbors; //list of pointers to all adjacent precincts
 };
 
@@ -51,6 +59,8 @@ Precinct::Precinct()
 {
     setId("");
     setTotalPop(0);
+    setMajorPartyIndex(-1);
+
 }
 
 Precinct::~Precinct()
@@ -68,6 +78,10 @@ void Precinct::setTotalPop(int newTotalPop)
     m_totalPop = newTotalPop;
 }
 
+void Precinct::setMajorPartyIndex(int newIndex)
+{
+	m_majorPartyIndex = newIndex;
+}
 /***** Getters *****/
 string Precinct::getId()
 {
@@ -79,6 +93,10 @@ int Precinct::getTotalPop()
     return m_totalPop;
 }
 
+int Precinct::getMajorPartyIndex()
+{
+	return m_majorPartyIndex;
+}
 /**** Print ****/
 // print(): prints all information about precinct
 void Precinct::print()
@@ -109,6 +127,33 @@ int Precinct::getPartyPop(int partyIndex)
 void Precinct::addPartyPercentage(double percentage)
 {
     m_partyPercents.push_back(percentage);
+}
+
+// updateMajorParty(): iterates through available party percentages, and updates the majorPartyIndex to the highest
+//	In case of no parties listed, will default to -1
+void Precinct::updateMajorParty()
+{
+	if(m_partyPercents.size() == 0)
+	{
+		setMajorPartyIndex(-1);
+	}
+	else
+	{
+		int currentHighestIndex = -1;
+		double currentHighestPercent = 0;
+
+		vector<double>::iterator iter = m_partyPercents.begin();
+
+		for(int i = 0;iter != m_partyPercents.end(); iter++, i++)
+		{
+			if(*iter > currentHighestPercent)
+			{
+				currentHighestIndex = i;
+				currentHighestPercent = (*iter);
+			}
+		}
+		setMajorPartyIndex(currentHighestIndex);
+	}
 }
 
 #endif

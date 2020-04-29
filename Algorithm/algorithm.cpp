@@ -18,11 +18,13 @@
 #include <sstream>
 #include <map>
 #include <stdio.h>
+#include <ctime> //Use time to seed a random number
 
 #include "precinct.h"
 #include "district.h"
 
 using namespace std;
+
 
 //*** Temp variables for testing, delete later
 const int NUM_DISTRICTS = 8; //cheating, using as place holder for now
@@ -78,6 +80,8 @@ void clearAll()
 
 /**** MAIN ****/
 int main() {
+
+	srand(time(nullptr));// Create semi-random set of numbers
 
 	string currentLine; //For reading line by line
 	char* charArray = new char[256]; // for converting string line into char*
@@ -146,6 +150,8 @@ int main() {
 		readInPrecinct->addPartyPercentage(stof(strtok(NULL, " \t\v\r\n\f,()")));
 		readInPrecinct->addPartyPercentage(stof(strtok(NULL, " \t\v\r\n\f,()")));
 
+		readInPrecinct->updateMajorParty();
+
 		//Add precinct to vector
 		g_Precincts.push_back(readInPrecinct);
 
@@ -186,6 +192,7 @@ int main() {
 		Precinct* targetPrecinct = g_Precincts[index]; //The precinct we want to add neighbors to
 
 
+		/*
 		//Read up to first '[', signaling start of neighbors
 		precinctId = strtok(NULL, "[");
 
@@ -203,10 +210,11 @@ int main() {
 			//in that case continue to next line
 			continue;
 		}
-
+		*/
 		//else, there is at least one neighbor, so keep tonkenizing till we hit the end
+
 		precinctId = strtok(NULL, " ,'");
-		while(precinctId != nullptr)
+		while(precinctId != "\0")
 		{
 
 			iter = precinctMap.find(precinctId);
@@ -228,6 +236,16 @@ int main() {
 	}
 
 
+	for(int i = 0; i < (int) g_Precincts.size(); i++)
+	{
+		g_Precincts[i]->print();
+		printf("----- Neighbors: ");
+		for(int jj = 0; jj < g_Precincts[i]->m_neighbors.size(); jj++)
+		{
+			printf("%s, ",g_Precincts[i]->m_neighbors[jj]->getId());
+		}
+		printf("\n _____________________________\n");
+	}
 
 
 	//**********   Setup Districts   **************
@@ -251,6 +269,35 @@ int main() {
 		newDistrict->setId(ii);
 		newDistrict->setParty(partyTargetAssignment);
 
+		//give district a random starting precinct
+
+		int randomIndex = rand() % (int)precinctMap.size();
+		Precinct* randomPrecinct = g_Precincts[randomIndex];
+		int majorPartyIndex = randomPrecinct->getMajorPartyIndex();
+		map<string,int>::iterator iter = precinctMap.find(randomPrecinct->getId());
+
+		while(majorPartyIndex != partyTargetAssignment || iter == precinctMap.end())
+		{
+			randomIndex = rand() % (int)precinctMap.size();
+			randomPrecinct = g_Precincts[randomIndex];
+			majorPartyIndex = randomPrecinct->getMajorPartyIndex();
+			iter = precinctMap.find(randomPrecinct->getId());
+		}
+
+		newDistrict->m_precincts.push_back(randomPrecinct);
+
+
+		//TODO double check if doing insertion right and calling manageEdges() appropriately
+		newDistrict->m_edgePrecincts.push_back(randomPrecinct);
+		newDistrict->manageEdges();
+
+
+
+		//Remove precinct from map, indicating it has already been added to a district
+		precinctMap.erase(iter);
+
+		g_Districts.push_back(newDistrict);
+
 		for(int jj = (partyTargetAssignment + 1) % 5 ;; jj++) //TODO again, change from hard coding 5
 		{
 			if(activeParties[jj])
@@ -258,17 +305,15 @@ int main() {
 				partyTargetAssignment = jj;
 				break;
 			}
-
 		}
 
-		g_Districts.push_back(newDistrict);
 	}
 
 
 
 	//********** Add Precincts to Districts ********
 	//REMINDER: After precinct added to district, run district.manageEdges() function
-	
+	// Using algorithm_practice.cpp as guidance for what to do for now...
 	
 	
 	
