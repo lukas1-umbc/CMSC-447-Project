@@ -328,8 +328,10 @@ void parsePrecinctData()
 			g_outFile << whichParties[i] << ",";
 		}
 		
+		g_outFile << "\nDemocrat,Green,Libertarian,OtherParties,Republican";
+		
 		// This is just the layout of each row of data
-		g_outFile << "\nPrecinctID,PrecinctPop,DemocratP,GreenP,LibertarianP,OtherPartiesP,RepublicanP\n";
+		g_outFile << "\n#PrecinctID,PrecinctPop,DemocratP,GreenP,LibertarianP,OtherPartiesP,RepublicanP\n";
 		
 		
 		// Output data to file

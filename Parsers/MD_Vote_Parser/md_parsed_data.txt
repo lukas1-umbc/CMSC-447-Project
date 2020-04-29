@@ -1,7 +1,8 @@
 8
 2
 1,0,0,0,1,
-PrecinctID,PrecinctPop,DemocratP,GreenP,LibertarianP,OtherPartiesP,RepublicanP
+Democrat,Green,Libertarian,OtherParties,Republican
+#PrecinctID,PrecinctPop,DemocratP,GreenP,LibertarianP,OtherPartiesP,RepublicanP
 2400101-000,630,0.196825,0,0,0,0.625397,
 2400102-000,708,0.216102,0,0,0,0.601695,
 2400103-000,679,0.21944,0,0,0,0.597938,
