@@ -75,7 +75,7 @@ def modifyGeo(mergedDict, filename):
         if precName in mergedDict:
             feature["properties"]["VTD"] = mergedDict[precName]
         else:
-            feature["properties"]["VTD"] = "00000000"
+            feature["properties"]["VTD"] = None
 
     #write the VTD information to the geojson file
     with open(filename, "w+") as f:
@@ -93,10 +93,12 @@ def parseSCPrecNbrs(filename):
 
     #populate precinctDict
     for feature in data["features"]:
-        
+
         code = feature["properties"]["VTD"]
-        coordList = feature["geometry"]["coordinates"][0]
-        precinctDict[code] = coordList
+        #~110 precincts that could not be matched; they are null
+        if code:
+            coordList = feature["geometry"]["coordinates"][0]
+            precinctDict[code] = coordList
 
     precinctFile.close()
 
@@ -128,7 +130,7 @@ def parseSCPrecNbrs(filename):
                         precinctNbrs[precinct].append(potentialNbr)
                         break
                     
-        print(precinct + ": " + str(precinctNbrs[precinct]))
+        #print(precinct + ": " + str(precinctNbrs[precinct]))
 
     print("Neighbor parser took " + str(round((time.time() - start)/60, 2)) + " minutes")
 
