@@ -337,6 +337,8 @@ void parsePrecinctData()
 		{
 			splitString(originalData[i], line);
 			
+			line[0].erase(line[0].begin() + 5);
+			
 			g_outFile << line[0] << "," << line[1] << ",";
 			
 			if(democratStatePercent >= 0.12)
