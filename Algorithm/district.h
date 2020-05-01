@@ -3,9 +3,8 @@
 //		- prescinct.h - contains the Prescinct class and methods
 //
 // Original Coder: David Ramsey
-// Most Recent Change: 20 April 2020
-//		- Implemented manageEdges() function.
-//              - Moved m_precincts, and m_edge precincts to be public members
+// Most Recent Change: 1 May 2020
+//		- Implemented print() function.
 //
 
 
@@ -13,6 +12,7 @@
 #define DISTRICT_H
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -42,7 +42,7 @@ public:
     int getParty();
 
     // Print
-    void print();
+    void print(int debug);
 
     // Helpers
     int checkMajorityParty();
@@ -88,9 +88,70 @@ int District::getParty()
 
 // Print
 // print(): prints all information about district
-void District::print()
+//       - return: File containing the District information
+//       - input:  If the input is 0, only the file will be produced.
+//                 Otherwise, some debug info will be displayed.
+void District::print(int debug)
 {
-	
+
+    //Optional debug can be outputted to tester
+    if(debug)
+    {
+      cout << "District " << m_id << endl;
+      cout << "Party " << m_party << endl;
+    }
+
+    //First we check if the output file already exists
+    ifstream algOutputTest("algOutput.txt");
+    int firstLine = 0;
+    if(!algOutputTest.is_open()) firstLine = 1;
+    algOutputTest.close();
+    
+    //Opens the output file in append mode
+    ofstream algOutput;
+    algOutput.open("algOutput.txt", ios::app);
+
+    //Testing variables for optional debug info
+    int districtPop = 0;
+    int partyPop = 0;
+
+    //First line describes the format of the file
+    if(firstLine) algOutput << "DistrictNum,DistrictParty,PrecinctID,...\n";
+    
+    //Adding initial info
+    algOutput << m_id << "," << m_party << ",";
+
+    //Printing out the contained precincts
+    for(int i=0; i<m_precincts.size(); i++)
+    {
+        algOutput << m_precincts[i]->getId() << ",";
+
+	//Optionally, we want to save the total population and party population for testing
+        if(debug)
+        {
+	    districtPop += m_precincts[i]->getTotalPop();
+	    partyPop += m_precincts[i]->getPartyPop(checkMajorityParty());
+	}
+    }
+
+    algOutput << "\n";
+
+    //Print out the majority party percentage and check with what is stored in the district
+    if(debug)
+    {
+        double percentage = partyPop/districtPop;
+	cout << "Majority percentage: " << percentage << endl;
+	cout << "All party percentages: ";
+
+	for(int i=0;i<m_partyStats.size();i++)
+	{
+	  cout << m_partyStats[i] << ", "; 
+	}
+	cout << "\n";
+    }
+    
+    algOutput.close();
+    
 }
 
 // Helpers
