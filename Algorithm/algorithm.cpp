@@ -83,7 +83,7 @@ int main() {
 	srand(time(nullptr));// Create semi-random set of numbers
 
 	string currentLine; //For reading line by line
-	char* charArray = new char[256]; // for converting string line into char*
+	char* charArray = new char[2048]; // for converting string line into char* (update, bumped up character count, maybe fix issues?)
 	char* charArray2 = new char[256]; //for secondary tokenizing
 
 	string precinctId;
@@ -185,6 +185,9 @@ int main() {
 	g_inFile.close();
 
 
+
+
+
 	//********* Add neighbor precincts  *********
 
 	g_inFile.open(NEIGHBOR_FILE);
@@ -202,34 +205,47 @@ int main() {
 	//loop through each line in neighbor list
 	while(getline(g_inFile, currentLine) && debug <= 1849)
 	{
-		printf("%i\n",debug);
-		//printf("\n \n %s", currentLine);
+		//printf("%i \n ",debug);
+		charArray[0] = '\0';
 		strcpy(charArray, currentLine.c_str());
+		//printf("%s \n", charArray);
 
-		precinctId = strtok(charArray, ":");
+		precinctId = strtok(charArray, " :");
 		map<string,int>::iterator iter = precinctMap.find(precinctId);
 
 		if(iter == precinctMap.end())
 		{
 			//Somehow this precinct isn't listed, print error for now
-			printf("ERROR! Precinct with id(%s) does not already exist! \n", precinctId);
+			printf("\n ERROR! Precinct with id(%s) does not already exist! \n", precinctId.c_str());
+
+			debug++;
+
 			continue;
 		}
 
 		int index = iter->second;
 		Precinct* targetPrecinct = g_Precincts[index]; //The precinct we want to add neighbors to
 
+
 		char* precinctIdChar = strtok(NULL, " ,'\n");
 		//precinctId = strtok(NULL, " ,'\n");
-		while(precinctIdChar != NULL)
+
+		int debug2 = 0;
+
+		while(precinctIdChar != NULL && debug2 != 15)
 		{
+			debug2++;
+
 			precinctId = precinctIdChar;
 			iter = precinctMap.find(precinctId);
 
 			if(iter == precinctMap.end())
 			{
 				//Somehow this precinct isn't listed, print error for now
-				//printf("ERROR at %i! Precinct with id(%s) does not already exist! Cannot add as neighbor \n",debug, precinctId);
+				printf("\n ERROR at %i! Precinct with id(%s) does not already exist! Cannot add as neighbor \n",debug, precinctId.c_str());
+
+				precinctIdChar = strtok(NULL, " ,'\n");
+
 				continue;
 			}
 
@@ -243,7 +259,7 @@ int main() {
 		debug++;
 	}
 
-
+	/*
 	for(int i = 0; i < (int) g_Precincts.size(); i++)
 	{
 		g_Precincts[i]->print();
@@ -254,8 +270,13 @@ int main() {
 		}
 		printf("\n _____________________________\n");
 	}
-
+	*/
 	g_inFile.close();
+
+
+
+
+
 
 	//**********   Setup Districts   **************
 
@@ -430,6 +451,8 @@ int main() {
 		}
 
 		printf("\n");
+
+		g_Districts[i]->print();
 	}
 
 
