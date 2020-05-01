@@ -54,6 +54,17 @@ var styleFunction = function(feature) {
 };
 
 /******************************************************
+Creates a group of one layer: one layer is the base map 
+layer. This will be what the screen defaults too.
+******************************************************/
+var defaultGroup = new ol.layer.Group({
+    layers:[
+      new ol.layer.Tile({
+        source: new ol.source.OSM()
+      }),
+      ]
+})
+/******************************************************
 Creates a group of layers: one layer is the base map 
 layer, the other is the MD district geojson data with
 the appropriate style and the final layer is the 
@@ -128,11 +139,7 @@ var map = new ol.Map({
 
     target: 'map',
 
-    layers: [
-     	new ol.layer.Tile({
-      		source: new ol.source.OSM()
-    	})
-    ],
+    layers: defaultGroup,
 
     view: new ol.View({
         //lon, lat coordinates for center of the USA
@@ -144,13 +151,15 @@ var map = new ol.Map({
 
 /******************************************************
 The following displays the apporitate state information
-based on what the user selects.
+based on what the user selects after the Run button
+is pushed
 ******************************************************/
 
-var button = document.getElementById("mapswitcher");
+var runButton = document.getElementById("mapswitcher");
 
 
-button.addEventListener("click", function(){
+runButton.addEventListener("click", function(){
+  console.log("button clicked")
 	
 	var state = document.getElementById("selectState").value;
 
@@ -181,7 +190,30 @@ button.addEventListener("click", function(){
    }
 });
 
+/******************************************************
+The following resets the map to the deafults view
+******************************************************/
+var resetButton = document.getElementById("btnReset");
 
+resetButton.addEventListener("click", function(){
+    console.log("button clicked")
+    map.setLayerGroup(defaultGroup)
+    map.setView(
+        new ol.View({
+            //lon, lat coordinates for center of the USA
+            center: ol.proj.fromLonLat([-98.58333333, 39.83333333]),
+            zoom: 4
+        })
+    )
+});
+/******************************************************
+The following displays the text user inputs
+******************************************************/
+var commentButton = document.getElementById("btnComment");
 
-
+commentButton.addEventListener("click", function(){
+    console.log("button clicked")
+    console.log(CKEDITOR.instances.text.getData())
+    document.getElementById("lblComment").innerHTML = CKEDITOR.instances.text.getData()
+});
 
