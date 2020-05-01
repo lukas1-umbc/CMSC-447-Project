@@ -27,7 +27,6 @@ using namespace std;
 
 
 //*** Temp variables for testing, delete later
-const int NUM_DISTRICTS = 8; //cheating, using as place holder for now
 const string IN_FILE = "md_parsed_data.txt";
 const string NEIGHBOR_FILE = "md_precinct_neighbors.txt";
 
@@ -88,6 +87,20 @@ int main() {
 	char* charArray2 = new char[256]; //for secondary tokenizing
 
 	string precinctId;
+	int numDistricts;
+
+
+
+
+
+	//TODO     Read in first data, which is number of districts
+	//TODO	   New parsed data will have a line after active party booleans, giving corresponding string names
+
+
+
+
+
+
 
 
 
@@ -100,13 +113,18 @@ int main() {
 		return 1;
 	}
 
-	//First line = number of dominant parties
+	//First Line = number of Districts
+	getline(g_inFile, currentLine);
+	strcpy(charArray, currentLine.c_str());
+	numDistricts = atoi(strtok(charArray, " \t\v\r\n\f,()"));
+
+	//Second line = number of dominant parties
 	getline(g_inFile, currentLine);
 	strcpy(charArray, currentLine.c_str());
 	g_NumParties = atoi(strtok(charArray, " \t\v\r\n\f,()"));
 
 
-	//Second line = active parties
+	//Third line = active parties
 	getline(g_inFile, currentLine);
 	strcpy(charArray, currentLine.c_str());
 
@@ -115,6 +133,9 @@ int main() {
 	activeParties[LIBERTARIAN] = atoi(strtok(NULL, " \t\v\r\n\f,()"));
 	activeParties[OTHER] = atoi(strtok(NULL, " \t\v\r\n\f,()"));
 	activeParties[REPUBLICAN] = atoi(strtok(NULL, " \t\v\r\n\f,()"));
+
+	//TODO Read in name of Parties, place in vector of strings
+	getline(g_inFile, currentLine); //For now, skip
 
 	//Header line, skip over
 	getline(g_inFile, currentLine);
@@ -173,9 +194,16 @@ int main() {
 		return 1;
 	}
 
+
+	int debug = 0; // DELETE LaTER
+
+
+
 	//loop through each line in neighbor list
-	while(getline(g_inFile, currentLine))
+	while(getline(g_inFile, currentLine) && debug <= 1849)
 	{
+		printf("%i\n",debug);
+		//printf("\n \n %s", currentLine);
 		strcpy(charArray, currentLine.c_str());
 
 		precinctId = strtok(charArray, ":");
@@ -191,38 +219,17 @@ int main() {
 		int index = iter->second;
 		Precinct* targetPrecinct = g_Precincts[index]; //The precinct we want to add neighbors to
 
-
-		/*
-		//Read up to first '[', signaling start of neighbors
-		precinctId = strtok(NULL, "[");
-
-		string listNeighbors;
-		//Grab everything up to ']'
-		listNeighbors = strtok(NULL, "]");
-
-		//Move everything grabbed into charArray2 for further tokenizing
-		strcpy(charArray2, listNeighbors.c_str());
-
-		precinctId = strtok(charArray2, " ,'");
-		if(precinctId == nullptr)
+		char* precinctIdChar = strtok(NULL, " ,'\n");
+		//precinctId = strtok(NULL, " ,'\n");
+		while(precinctIdChar != NULL)
 		{
-			//A (') doesn't show up, meaning we have an empty neighbor list ( 401918-001: [])
-			//in that case continue to next line
-			continue;
-		}
-		*/
-		//else, there is at least one neighbor, so keep tonkenizing till we hit the end
-
-		precinctId = strtok(NULL, " ,'");
-		while(precinctId != "\0")
-		{
-
+			precinctId = precinctIdChar;
 			iter = precinctMap.find(precinctId);
 
 			if(iter == precinctMap.end())
 			{
 				//Somehow this precinct isn't listed, print error for now
-				printf("ERROR! Precinct with id(%s) does not already exist! Cannot add as neighbor \n", precinctId);
+				//printf("ERROR at %i! Precinct with id(%s) does not already exist! Cannot add as neighbor \n",debug, precinctId);
 				continue;
 			}
 
@@ -231,8 +238,9 @@ int main() {
 
 			targetPrecinct->m_neighbors.push_back(targetNeighborPrecinct);
 
-			precinctId = strtok(NULL, " ,'");
+			precinctIdChar = strtok(NULL, " ,'\n");
 		}
+		debug++;
 	}
 
 
@@ -247,9 +255,13 @@ int main() {
 		printf("\n _____________________________\n");
 	}
 
+	g_inFile.close();
 
 	//**********   Setup Districts   **************
 
+	//Setup an array of iterators for both precincts owned, and for neighbors, for each district
+	vector<Precinct*>::iterator arrayOfIter[numDistricts];
+	vector<Precinct*>::iterator arrayOfNeighborIter[numDistricts];
 
 	int partyTargetAssignment; //Tracks what party to assign district
 	//TODO remove hardcode of 5, this represents the number of possible parties
@@ -263,7 +275,7 @@ int main() {
 	}
 
 
-	for(int ii = 0; ii < NUM_DISTRICTS; ii++)
+	for(int ii = 0; ii < numDistricts; ii++)
 	{
 		District* newDistrict = new District();
 		newDistrict->setId(ii);
@@ -271,21 +283,23 @@ int main() {
 
 		//give district a random starting precinct
 
-		int randomIndex = rand() % (int)precinctMap.size();
-		Precinct* randomPrecinct = g_Precincts[randomIndex];
-		int majorPartyIndex = randomPrecinct->getMajorPartyIndex();
-		map<string,int>::iterator iter = precinctMap.find(randomPrecinct->getId());
+		int randomIndex;
+		Precinct* randomPrecinct;
+		int majorPartyIndex;
+		map<string,int>::iterator iter;
 
-		while(majorPartyIndex != partyTargetAssignment || iter == precinctMap.end())
+		do
 		{
 			randomIndex = rand() % (int)precinctMap.size();
 			randomPrecinct = g_Precincts[randomIndex];
 			majorPartyIndex = randomPrecinct->getMajorPartyIndex();
 			iter = precinctMap.find(randomPrecinct->getId());
-		}
+		}while(majorPartyIndex != partyTargetAssignment || iter == precinctMap.end());
 
 		newDistrict->m_precincts.push_back(randomPrecinct);
 
+		arrayOfIter[ii] = newDistrict->m_precincts.begin();
+		arrayOfNeighborIter[ii] = (randomPrecinct->m_neighbors).begin(); //Will handle empty neighbors in main loop
 
 		//TODO double check if doing insertion right and calling manageEdges() appropriately
 		newDistrict->m_edgePrecincts.push_back(randomPrecinct);
@@ -315,20 +329,110 @@ int main() {
 	//REMINDER: After precinct added to district, run district.manageEdges() function
 	// Using algorithm_practice.cpp as guidance for what to do for now...
 	
-	
-	
-	
-	
-/*
-	loadPrecinctData();
-	loadPrecinctPop();
-	
-	for(int i = 0; i < (int) g_Precincts.size(); i++)
+	for(int ii=0; precinctMap.size()>0; (ii++)%numDistricts)
 	{
-		g_Precincts[i]->print();
+
+		bool precinctAdded = false;
+		/*Each district will go through its neighbors to
+		find one to add */
+		vector<Precinct*>::iterator neighborIter = arrayOfNeighborIter[ii];
+		vector<Precinct*>::iterator addedPrecinctIter = arrayOfIter[ii];
+
+		for(; neighborIter != (*addedPrecinctIter)->m_neighbors.end(); neighborIter++)
+		{
+
+			/*If the neighboring district, really the precinct,
+			is of the same party, then add it and continue */
+
+			//Check if the neighbor is same party as already listed precinct, and is not already taken (missing from map)
+			if ((*neighborIter)->getMajorPartyIndex() == (*addedPrecinctIter)->getMajorPartyIndex()
+					&& precinctMap.find((*neighborIter)->getId()) != precinctMap.end())
+			{
+
+				g_Districts[ii]->m_precincts.push_back(*neighborIter);
+				g_Districts[ii]->m_edgePrecincts.push_back(*neighborIter);
+				g_Districts[ii]->manageEdges();
+				precinctMap.erase((*neighborIter)->getId());
+
+				precinctAdded = true;
+				break;
+
+			}
+
+
+		}
+		if(!precinctAdded)
+		{
+			//end of a neighbor list, try next added precinct list of neighbors
+			if((arrayOfIter[ii]++) != g_Districts[ii]->m_precincts.end())
+			{
+				//arrayOfIter[ii]++;
+				arrayOfNeighborIter[ii] = (*arrayOfIter[ii])->m_neighbors.begin();
+				ii--; //Reset for loop counter, redo adding a precinct to same District
+			}
+			else //End of all possible neighbors, try random picking of a precinct
+			{
+
+				//Note: Possible edge case that no more precincts of same party exist, in which case need to only loop a set number of times
+
+				int maxLoop = precinctMap.size();//Use to ensure we won't infinitely loop
+
+				int randomIndex;
+				Precinct* randomPrecinct;
+				int majorPartyIndex;
+				map<string,int>::iterator iter;
+
+				do
+				{
+					randomIndex = rand() % (int)precinctMap.size();
+					randomPrecinct = g_Precincts[randomIndex];
+					majorPartyIndex = randomPrecinct->getMajorPartyIndex();
+					iter = precinctMap.find(randomPrecinct->getId());
+
+					(majorPartyIndex == partyTargetAssignment) ? precinctAdded = true : precinctAdded = false;
+
+					if(precinctAdded)
+						break;
+
+					maxLoop--;
+				}while((majorPartyIndex != partyTargetAssignment || iter == precinctMap.end()) && maxLoop!= 0 ); //TODO double check
+
+				if(precinctAdded)
+				{
+					g_Districts[ii]->m_precincts.push_back(randomPrecinct);
+					g_Districts[ii]->m_edgePrecincts.push_back(randomPrecinct);
+					g_Districts[ii]->manageEdges();
+					precinctMap.erase(randomPrecinct->getId());
+				}
+				else
+				{
+					//Edge case, no more precincts of same party left, SKIP?
+				}
+			}
+		}
+
+
+
+
 	}
 	
-*/
+	
+	//All precincts should be added, print out
+	//DEBUG, delete later
+	
+	for(int i = 0; i < g_Districts.size(); i++)
+	{
+		printf("District %i \n", i);
+		printf("Party: %s \n", g_Districts[i]->getParty());
+		for(int j = 0; j < g_Districts[i]->m_precincts.size(); j++)
+		{
+			printf("%s \n", g_Districts[i]->m_precincts[j]->getId());
+		}
+
+		printf("\n");
+	}
+
+
 	// Free all data
 	clearAll();
     return 0;
