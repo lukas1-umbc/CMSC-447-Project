@@ -33,6 +33,7 @@ const string NEIGHBOR_FILE = "md_precinct_neighbors.txt";
 
 enum {DEMOCRAT, GREEN, LIBERTARIAN, OTHER, REPUBLICAN};
 bool activeParties[5];
+
 //*********
 
 
@@ -84,6 +85,7 @@ int main() {
 
 	string currentLine; //For reading line by line
 	char* charArray = new char[2048]; // for converting string line into char* (update, bumped up character count, maybe fix issues?)
+
 	char* charArray2 = new char[256]; //for secondary tokenizing
 
 	string precinctId;
@@ -134,8 +136,15 @@ int main() {
 	activeParties[OTHER] = atoi(strtok(NULL, " \t\v\r\n\f,()"));
 	activeParties[REPUBLICAN] = atoi(strtok(NULL, " \t\v\r\n\f,()"));
 
+
+
+
 	//TODO Read in name of Parties, place in vector of strings
 	getline(g_inFile, currentLine); //For now, skip
+
+
+
+
 
 	//Header line, skip over
 	getline(g_inFile, currentLine);
@@ -203,12 +212,13 @@ int main() {
 
 
 	//loop through each line in neighbor list
-	while(getline(g_inFile, currentLine) && debug <= 1849)
+	while(getline(g_inFile, currentLine) && debug <= 16)
 	{
-		//printf("%i \n ",debug);
-		charArray[0] = '\0';
+		printf("%i \n ", debug);
+		//charArray[0] = '\0';
+
 		strcpy(charArray, currentLine.c_str());
-		//printf("%s \n", charArray);
+		printf("%s \n", charArray);
 
 		precinctId = strtok(charArray, " :");
 		map<string,int>::iterator iter = precinctMap.find(precinctId);
@@ -385,9 +395,9 @@ int main() {
 		if(!precinctAdded)
 		{
 			//end of a neighbor list, try next added precinct list of neighbors
-			if((arrayOfIter[ii]++) != g_Districts[ii]->m_precincts.end())
+			if(next(arrayOfIter[ii],1) != g_Districts[ii]->m_precincts.end())
 			{
-				//arrayOfIter[ii]++;
+				arrayOfIter[ii]++;
 				arrayOfNeighborIter[ii] = (*arrayOfIter[ii])->m_neighbors.begin();
 				ii--; //Reset for loop counter, redo adding a precinct to same District
 			}
@@ -424,6 +434,9 @@ int main() {
 					g_Districts[ii]->m_edgePrecincts.push_back(randomPrecinct);
 					g_Districts[ii]->manageEdges();
 					precinctMap.erase(randomPrecinct->getId());
+
+					arrayOfIter[ii]++; // = newDistrict->m_precincts.begin();
+					arrayOfNeighborIter[ii] = (randomPrecinct->m_neighbors).begin();
 				}
 				else
 				{
