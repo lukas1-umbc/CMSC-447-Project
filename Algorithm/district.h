@@ -5,8 +5,8 @@
 // Original Coder: David Ramsey
 // Most Recent Change: 1 May 2020
 //		- Implemented print() function.
+//              - Changed 0 to be the default for the parameter
 //
-
 
 #ifndef DISTRICT_H
 #define DISTRICT_H
@@ -89,9 +89,9 @@ int District::getParty()
 // Print
 // print(): prints all information about district
 //       - return: File containing the District information
-//       - input:  If the input is 0, only the file will be produced.
+//       - input:  If there is no input given, or the parameter is 0, only the file will be produced.
 //                 Otherwise, some debug info will be displayed.
-void District::print(int debug)
+void District::print(int debug=0)
 {
 
     //Optional debug can be outputted to tester
