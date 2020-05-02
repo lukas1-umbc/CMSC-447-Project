@@ -134,7 +134,7 @@ void District::print(int debug=0)
 	}
     }
 
-    algOutput << "\n";
+    algOutput << "\n \n";
 
     //Print out the majority party percentage and check with what is stored in the district
     if(debug)
