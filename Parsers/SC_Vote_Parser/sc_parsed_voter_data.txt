@@ -1,6 +1,7 @@
 7
 2
 1,0,0,0,0,1,0,0,
+Democratic, Working Families, Constitution, Independence, Green, Republican, American, Libertarian, 
 # PrecinctID,RegisteredVoters,Democratic,Working Families,Constitution,Independence,Green,Republican,American,Libertarian,
 Abbeville No. 1,2161,0.381868,0,0,0,0,0.568681,0,0,
 Abbeville No. 2,1970,0.677596,0,0,0,0,0.281421,0,0,

@@ -301,6 +301,13 @@ void writeProcessedFile()
 	}
 	g_outFile << endl;
 
+	// Write party names
+	for(int i = 0; i < (int)g_partyList.size(); i++)
+	{
+		g_outFile << g_partyList[i]->m_id << ", ";
+	}
+	g_outFile << endl;
+
 	// Write precinct data header
 	g_outFile << "# PrecinctID,RegisteredVoters,";
 	for(int i = 0; i < (int)g_partyList.size(); i++)
