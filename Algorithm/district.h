@@ -124,7 +124,7 @@ void District::print(int debug=0)
     //Printing out the contained precincts
     for(int i=0; i<m_precincts.size(); i++)
     {
-        algOutput << m_precincts[i]->getId() << ",";
+        algOutput << "'" << m_precincts[i]->getId() <<"'" << ",";
 
 	//Optionally, we want to save the total population and party population for testing
         if(debug)
@@ -191,17 +191,17 @@ void District::manageEdges()
 
             //Check which neighbors are inside of the current district
             for(int k=0; k< (int) m_precincts.size(); k++)
-	    {
-	        //Check if the neighbor is already in the current district
-	        if(m_precincts[k]->getId() == m_edgePrecincts[i]->m_neighbors[j]->getId())
 	        {
+	            //Check if the neighbor is already in the current district
+	            if(m_precincts[k]->getId() == m_edgePrecincts[i]->m_neighbors[j]->getId())
+	            {
 		  
-		    //Remove the naighbor
-		    m_edgePrecincts[i]->m_neighbors.erase(m_edgePrecincts[i]->m_neighbors.begin()+j);
-		    j--;
-		    break;
-		}     
-	    }
+		            //Remove the naighbor
+		            m_edgePrecincts[i]->m_neighbors.erase(m_edgePrecincts[i]->m_neighbors.begin()+j);
+		            j--;
+		            break;
+		        }     
+	        }
 	}
 
 	//If the edge precinct has an empty neighbors list
