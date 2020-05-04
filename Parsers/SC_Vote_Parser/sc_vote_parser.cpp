@@ -302,7 +302,7 @@ void writeProcessedFile()
 	g_outFile << endl;
 
 	// Write precinct data header
-	g_outFile << "PrecinctID,RegisteredVoters,";
+	g_outFile << "# PrecinctID,RegisteredVoters,";
 	for(int i = 0; i < (int)g_partyList.size(); i++)
 	{
 		g_outFile << g_partyList[i]->m_id << ",";
@@ -327,8 +327,15 @@ void writeProcessedFile()
 		// calculate and write affiliation ratio for each party
 		for(int k = 0; k < (int)g_partyList.size(); k++)
 		{
-			percent = (double)precinct->m_partyNumbers[k] / (double)voteTotal;
-			g_outFile << percent << ",";
+			if(g_partyList[k]->m_sig == true)
+			{
+				percent = (double)precinct->m_partyNumbers[k] / (double)voteTotal;
+				g_outFile << percent << ",";
+			}
+			else
+			{
+				g_outFile << 0 << ",";
+			}
 		}
 		g_outFile << endl;
 	}
