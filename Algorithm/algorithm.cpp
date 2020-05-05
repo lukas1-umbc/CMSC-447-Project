@@ -306,6 +306,15 @@ int main() {
 	g_Districts.push_back(newDistrict);
 	initPrecs.push_back(randomPrecinct -> getId());
 
+	for(int jj = (partyTargetAssignment + 1) % 5 ;; jj++) //TODO again, change from hard coding 5
+	{
+		if(activeParties[jj])
+		{
+			partyTargetAssignment = jj;
+			break;
+		}
+	}
+
 	//create other districts
 	for(int ii = 1; ii < numDistricts; ii++)
 	{
