@@ -19,6 +19,8 @@
 #include <map>
 #include <stdio.h>
 #include <ctime> //Use time to seed a random number
+#include <set>
+#include <algorithm>
 
 #include "precinct.h"
 #include "district.h"
@@ -251,22 +253,7 @@ int main() {
 		
 	}
 
-	//print out each precinct and its neighbors
-	/*
-	for(int i = 0; i < g_Precincts.size(); i++)
-	{
-		if(g_Precincts[i]->m_neighbors.size() != 0)
-		{
-			printf("----- Neighbors: ");
-			for(int jj = 0; jj < g_Precincts[i]->m_neighbors.size(); jj++)
-			{
-				printf("%s, ",g_Precincts[i]->m_neighbors[jj]->getId().c_str());
-			}
-			printf("\n _____________________________\n");
-		}
-	}
-
-	printf("\n\n\n\n .............");*/
+	printf("\n\n\n\n .............");
 	g_inFile.close();
 
 	//**********   Setup Districts   **************
@@ -332,12 +319,14 @@ int main() {
 
 		do
 		{
-			int count = 0; //used to check whether the random precinct's county is not shared by a precinct already being used by another district
+			int count = 0; //used to check whether the random precinct's county is not
+						   //shared by a precinct already being used by another district
+						   //and has at least 1 neighbor
 			randomIndex = rand() % (int)precinctMap.size();
 			randomPrecinct = g_Precincts[randomIndex];
 			for (int prec = 0; prec < initPrecs.size(); prec++)
 			{
-				if (initPrecs[prec].substr(0, 5) != (randomPrecinct -> getId()).substr(0, 5))
+				if (initPrecs[prec].substr(0, 5) != (randomPrecinct -> getId()).substr(0, 5) && (randomPrecinct ->m_neighbors).size() > 3)
 				{
 					count++;
 				}
@@ -380,24 +369,28 @@ int main() {
 		}
 	}
 	
-
+	//print out each district and its first precinct
 	for(int district = 0; district < g_Districts.size(); district++)
-	{
-		cout << "District " << district + 1 << "(" << g_Districts[district] -> getParty() << ")" << ": ";
+	{	cout << "District " << g_Districts[district] -> getId() << ": ";
 		for(int precinct = 0; precinct < (g_Districts[district] -> m_precincts).size(); precinct++)
 		{
-			cout << g_Districts[district] -> m_precincts[precinct] -> getId() << ", ";
+			cout << "'" << g_Districts[district] -> m_precincts[precinct] -> getId() << "', ";
 		}
-		cout << endl;
 	}
-
+	cout << endl;
+	
 	//********** Add Precincts to Districts ********
 	//REMINDER: After precinct added to district, run district.manageEdges() function
 	// Using algorithm_practice.cpp as guidance for what to do for now...
-	/*
-	for(int ii=0, maxLoop = precinctMap.size() ; precinctMap.size()>0 && maxLoop != 0; ii= (ii+1)%numDistricts, maxLoop--)
+	//while there are still precincts to add
+
+	int count = 0;
+
+	int size = precinctMap.size();
+
+	for(int ii=0, maxLoop = 300000; maxLoop != 0; ii= (ii+1)%numDistricts)
 	{
-		printf("\n \n *****District %i : \n", ii);
+		//printf("\n \n *****District %i : \n", ii);
 
 		bool precinctAdded = false;
 
@@ -409,20 +402,76 @@ int main() {
 		{
 			Precinct* neighbor = rootPrecinct->m_neighbors[i];
 
-			printf("Current Neighbor: %s \n", neighbor->getId().c_str());
+			//printf("Current Neighbor: %s \n", neighbor->getId().c_str());
 
 			if (neighbor->getMajorPartyIndex() == rootPrecinct->getMajorPartyIndex()
 								&& precinctMap.find(neighbor->getId()) != precinctMap.end())
 			{
 				g_Districts[ii]->m_precincts.push_back(neighbor);
-				g_Districts[ii]->m_edgePrecincts.push_back(neighbor);
+				maxLoop--;
+				count++;
+				//g_Districts[ii]->m_edgePrecincts.push_back(neighbor);
 				//g_Districts[ii]->manageEdges();
 				precinctMap.erase(neighbor->getId());
 
-				rootPrecinct->m_neighbors.erase(rootPrecinct->m_neighbors.begin(), anIt);
+				//rootPrecinct->m_neighbors.erase(rootPrecinct->m_neighbors.begin(), anIt);
 
 				precinctAdded = true;
 				break;
+			}
+			//if the neighbor is not necessarily the same party but is still available
+			else if (precinctMap.find(neighbor -> getId()) != precinctMap.end())
+			{
+				//check that adding it won't affect overall party of the district
+				//need district's current democrat + republican populations
+				int demPop = 0;
+				int repubPop = 0;
+
+				//get the current party populations for the current district
+				for (int m = 0; m < g_Districts[ii] -> m_precincts.size(); m++)
+				{
+					demPop += g_Districts[ii] -> m_precincts[m] -> getPartyPop(DEMOCRAT);
+					repubPop += g_Districts[ii] -> m_precincts[m] -> getPartyPop(REPUBLICAN);
+				}
+
+				//check whether adding the neighbor will change the majority population of the district
+				//if the current district is republican
+				int nbrPop = 0;
+				if (g_Districts[ii] -> getParty() == DEMOCRAT)
+				{
+					nbrPop += neighbor -> getPartyPop(REPUBLICAN);
+					//if adding so many republicans does not change the district's majority, add the neighbor
+					if (repubPop + nbrPop < demPop)
+					{
+						g_Districts[ii] -> m_precincts.push_back(neighbor);
+						maxLoop--;
+						count++;
+						precinctMap.erase(neighbor -> getId());
+					}
+					//if it does change the district's majority, don't add it
+					else
+					{
+						continue;
+					}
+					
+				}
+				else if (g_Districts[ii] -> getParty() == REPUBLICAN)
+				{
+					nbrPop += neighbor -> getPartyPop(DEMOCRAT);
+					if (demPop + nbrPop < repubPop)
+					{
+						g_Districts[ii] -> m_precincts.push_back(neighbor);
+						maxLoop--;
+						count++;
+						precinctMap.erase(neighbor -> getId());
+					}
+					else
+					{
+						continue;
+					}
+					
+				}
+				
 			}
 		}
 		
@@ -432,11 +481,15 @@ int main() {
 			{
 				arrayOfIndex[ii]++;
 				ii--; //Reset for loop counter, redo adding a precinct to same District
+				maxLoop--;
 			}
 
 			else //End of all possible neighbors, try random picking of a precinct
 			{
-				//Note: Possible edge case that no more precincts of same party exist, in which case need to only loop a set number of times
+
+				maxLoop--;
+
+				/*//Note: Possible edge case that no more precincts of same party exist, in which case need to only loop a set number of times
 
 				int maxLoop = precinctMap.size();//Use to ensure we won't infinitely loop
 
@@ -466,7 +519,9 @@ int main() {
 				if(precinctAdded)
 				{
 					g_Districts[ii]->m_precincts.push_back(randomPrecinct);
-					g_Districts[ii]->m_edgePrecincts.push_back(randomPrecinct);
+					maxLoop--;
+					count++;
+					//g_Districts[ii]->m_edgePrecincts.push_back(randomPrecinct);
 					//g_Districts[ii]->manageEdges();
 					precinctMap.erase(randomPrecinct->getId());
 
@@ -476,11 +531,14 @@ int main() {
 				else
 				{
 					//Edge case, no more precincts of same party left, SKIP?
-				}
+					cout << "no more precincts of same party left" << endl;
+					maxLoop--;
+				}*/
 			}
 		}
-
 	}
+
+
 
 	//All precincts should be added, print out
 	//DEBUG, delete later
@@ -501,8 +559,9 @@ int main() {
 		printf("\n");
 
 		g_Districts[i]->print();
-	}*/
+	}
 
+	cout << count << endl;
 
 	// Free all data
 	clearAll();
