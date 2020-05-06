@@ -1,13 +1,12 @@
 /***********************************************************************
-Contributors: Kavya Kavanakudy, Lukas Mueller, Phillip Chow
-mappy.js file updated by Kavya Kavanakudy on April 19, 2020.
+mappy.js file updated by Kavya Kavanakudy on May 3, 2020.
 This is the .js file that interacts with the API in order to display a 
 map of a GEOJSON file provided by the algorithm
 ***********************************************************************/
 
 //The source files for geojson data
 
-var MDdistrictData ="districts.geojson"
+var MDdistrictData ="source/md_new_districts_BAO_5_6.geojson"
 var MDprecinctData = "precinct2010.geojson"
 var SCprecinctData = "2013_sc_precincts.geojson"
 
@@ -39,6 +38,16 @@ var partyStyles = {
         color: 'rgba(0, 0, 255, 1)',
         width: 3
     }),
+    text: new ol.style.Text({
+        font: '24px Calibri,sans-serif',
+        fill: new ol.style.Fill({
+            color: '#000'
+        }),
+        stroke: new ol.style.Stroke({
+            color: '#fff',
+            width: 3
+        })
+    })
   })
 
 };
@@ -51,7 +60,63 @@ var partyStyles = {
 ***************************************************/
 
 var styleFunction = function(feature) {
-  return partyStyles[feature.get("party")]
+  if(feature.get("PARTY") == "Republican"){
+    return new ol.style.Style({
+      fill: new ol.style.Fill({
+        color: 'rgba(193, 73, 73, 0.75)'
+      }),
+      stroke: new ol.style.Stroke({
+        color: 'rgba(204, 0, 0, 1)',
+        width: 3
+      }),
+    text: new ol.style.Text({
+      font: '24px Calibri,sans-serif',
+      fill: new ol.style.Fill({
+          color: '#000'
+      }),
+      stroke: new ol.style.Stroke({
+          color: '#fff',
+          width: 3
+      }),
+      text:feature.get("NAME"),
+    })
+    })
+
+  }
+
+  else if (feature.get("PARTY") == "Democrat"){
+    return new ol.style.Style({
+    fill: new ol.style.Fill({
+        color: 'rgba(73, 125, 193, 0.75)'
+    }),
+    stroke: new ol.style.Stroke({
+        color: 'rgba(0, 0, 255, 1)',
+        width: 3
+    }),
+    text: new ol.style.Text({
+        font: '24px Calibri,sans-serif',
+        fill: new ol.style.Fill({
+            color: '#000'
+        }),
+        stroke: new ol.style.Stroke({
+            color: '#fff',
+            width: 3
+        }),
+        text:feature.get("NAME"),
+    })
+  })
+  }
+  else{
+  	return new ol.style.Style({
+      fill: new ol.style.Fill({
+        color: 'rgba(0, 0, 0, 0.5)'
+      }),
+      stroke: new ol.style.Stroke({
+        color: 'rgba(0, 0, 0, 1)',
+        width: 3
+      })
+    })
+  }
 };
 
 /******************************************************
@@ -78,26 +143,26 @@ var MDdistrictGroup = new ol.layer.Group({
       new ol.layer.Tile({
         source: new ol.source.OSM()
       }),
-
+      new ol.layer.Vector({
+        source: new ol.source.Vector({
+          url: MDprecinctData,
+          format: new ol.format.GeoJSON(),
+        }),
+        style: new ol.style.Style({
+          stroke: new ol.style.Stroke({
+            color: 'rgba(0,0,0,.5)',
+            width: .75
+          })
+        })
+    }),
       new ol.layer.Vector({
         source: new ol.source.Vector({
         	url: MDdistrictData,
         	format: new ol.format.GeoJSON(),
         }),
         style: styleFunction
-      }),
-      new ol.layer.Vector({
-      	source: new ol.source.Vector({
-      		url: MDprecinctData,
-      		format: new ol.format.GeoJSON(),
-      	}),
-      	style: new ol.style.Style({
-        	stroke: new ol.style.Stroke({
-          	color: 'rgba(0,0,0,1)',
-          	width: .5
-        	})
-      	})
-    })
+      })
+      
     ]
 })
 
@@ -160,7 +225,6 @@ var runButton = document.getElementById("mapswitcher");
 
 
 runButton.addEventListener("click", function(){
-  console.log("button clicked")
 	
 	var state = document.getElementById("selectState").value;
 
@@ -189,6 +253,7 @@ runButton.addEventListener("click", function(){
    else{
    		window.alert("Please select a state")
    }
+   console.log("button clicked5")
 });
 
 /******************************************************
