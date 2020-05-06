@@ -1,4 +1,5 @@
 /***********************************************************************
+Contributors: Kavya Kavanakudy, Lukas Mueller, Phillip Chow
 mappy.js file updated by Kavya Kavanakudy on April 19, 2020.
 This is the .js file that interacts with the API in order to display a 
 map of a GEOJSON file provided by the algorithm

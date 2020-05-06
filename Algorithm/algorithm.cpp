@@ -10,6 +10,7 @@
 // Most Recent Change: 20 April 2020
 //		- added loadCountyCodes, fixed splitString function, completed full file read in for precinct voting data, added loadPrecinctPop
 //
+//Contributors: David Ramsey, Phillip Chow, Lukas Mueller
 
 #include <iostream>
 #include <fstream>
