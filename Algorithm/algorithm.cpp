@@ -204,6 +204,8 @@ int main() {
 		return 1;
 	}
 
+	vector<string>nbrFilePrecs;
+
 	//loop through each line in neighbor list
 	while(getline(g_inFile, currentLine))
 	{
@@ -211,8 +213,10 @@ int main() {
 		strcpy(charArray, currentLine.c_str());
 
 		precinctId = strtok(charArray, " :");
+
 		map<string,int>::iterator iter = precinctMap.find(precinctId);
 
+		//precinct is not in the map, so don't add it since we have no data for it
 		if(iter == precinctMap.end())
 		{
 			//Somehow this precinct isn't listed, print error for now
@@ -220,41 +224,78 @@ int main() {
 
 			continue;
 		}
-
-		int index = iter->second;
-		Precinct* targetPrecinct = g_Precincts[index]; //The precinct we want to add neighbors to
-
-		char* precinctIdChar = strtok(NULL, " ,'\n");
-
-		//look at each neighbor for the current precinct
-		while(precinctIdChar != NULL)
+		else
 		{
 
-			precinctId = precinctIdChar;
-			iter = precinctMap.find(precinctId);
-
-			if(iter == precinctMap.end())
-			{
-				//Somehow this precinct isn't listed, print error for now
-				//printf("\n ERROR at %i! Precinct with id(%s) does not already exist! Cannot add as neighbor \n",debug, precinctId.c_str());
-
-				precinctIdChar = strtok(NULL, " ,'\n");
-
-				continue;
-			}
+			nbrFilePrecs.push_back(precinctId);
 
 			int index = iter->second;
-			Precinct* targetNeighborPrecinct = g_Precincts[index];
+			Precinct* targetPrecinct = g_Precincts[index]; //The precinct we want to add neighbors to
 
-			targetPrecinct->m_neighbors.push_back(targetNeighborPrecinct);
+			char* precinctIdChar = strtok(NULL, " ,'\n");
 
-			precinctIdChar = strtok(NULL, " ,'\n");
+			//look at each neighbor for the current precinct
+			while(precinctIdChar != NULL)
+			{
+
+				precinctId = precinctIdChar;
+				iter = precinctMap.find(precinctId);
+
+				if(iter == precinctMap.end())
+				{
+					//Somehow this precinct isn't listed, print error for now
+					//printf("\n ERROR at %i! Precinct with id(%s) does not already exist! Cannot add as neighbor \n",debug, precinctId.c_str());
+
+					precinctIdChar = strtok(NULL, " ,'\n");
+
+					continue;
+				}
+
+				int index = iter->second;
+				Precinct* targetNeighborPrecinct = g_Precincts[index];
+
+				targetPrecinct->m_neighbors.push_back(targetNeighborPrecinct);
+
+				precinctIdChar = strtok(NULL, " ,'\n");
+			}
 		}
 		
 	}
 
-	printf("\n\n\n\n .............");
 	g_inFile.close();
+
+	//remove any precincts in precinctMap and g_Precincts that were not in the neighbor file
+	map<string, int>::iterator it = precinctMap.begin();
+	//loop through all precincts in the map
+	while (it != precinctMap.end())
+	{
+		string id = it -> first;
+		//cout << id << endl;
+		bool found = false;
+		//compare to all precincts from the neighbor file
+		for (string prec : nbrFilePrecs)
+		{
+			//if found, all good
+			if (prec == id)
+			{
+				found = true;
+			}
+		}
+		//if not found, remove it from precinctMap and g_Precincts since we won't be able to map it
+		if (!found)
+		{
+			precinctMap.erase(it);
+			//remove from g_Precincts
+			for (Precinct* prec : g_Precincts)
+			{
+				if (prec -> getId() == it -> first)
+				{
+					g_Precincts.erase(remove(g_Precincts.begin(), g_Precincts.end(), prec), g_Precincts.end());
+				}
+			}
+		}
+		it++;
+	}
 
 	//**********   Setup Districts   **************
 
@@ -447,6 +488,8 @@ int main() {
 						maxLoop--;
 						count++;
 						precinctMap.erase(neighbor -> getId());
+						precinctAdded = true;
+						break;
 					}
 					//if it does change the district's majority, don't add it
 					else
@@ -464,6 +507,8 @@ int main() {
 						maxLoop--;
 						count++;
 						precinctMap.erase(neighbor -> getId());
+						precinctAdded = true;
+						break;
 					}
 					else
 					{
@@ -538,7 +583,7 @@ int main() {
 		}
 	}
 
-
+	
 
 	//All precincts should be added, print out
 	//DEBUG, delete later
@@ -562,6 +607,7 @@ int main() {
 	}
 
 	cout << count << endl;
+	cout << "missing: " << 1808 - count << endl;
 
 	// Free all data
 	clearAll();
