@@ -1,5 +1,6 @@
+  
 <!--Contributors: Kavya Kavanakudy, Lukas Mueller, Phillip Chow-->
-<!--The following file was updated by Kavya Kavanakudy on April 19, 2020-->
+<!--The following file was updated by Kavya Kavanakudy on May 6, 2020-->
 <!DOCTYPE HTML>
 <html>
 
@@ -83,12 +84,35 @@
             		<label> Red = Republican Districts</label>
             		&nbsp;&nbsp;&nbsp;&nbsp;
                 	<label>Blue = Democratic Districts</label>
+                	&nbsp;&nbsp;&nbsp;&nbsp;
+                	<label>Grey = Not Enough Data</label>
             	</td>
             </tr>  
            
         </tbody>
         
         <tfoot>
+            <tr> 
+                <td align = 'center'>
+                    <button id="btnComment" type="button" style="font-size:15px">Comment</button>
+                </td>
+            </tr>
+              <tr>
+                <td align = 'center'>
+                    <br />
+                    <textarea id = "text" rows = "1" cols = "50" maxlength="250">
+                        Add Comment Here
+                    </textarea>
+                </td>
+                
+                
+
+            </tr>
+            <tr> 
+                <td align = 'center'>
+                    <label id="lblComment"></label>
+                </td>
+            </tr>
             <tr>
                 <td align='center' colspan='3' valign='bottom'>
                     <br />
@@ -104,7 +128,6 @@
                     </ul>
                     
                     <h5>Check File Integrity</h5>
-                    
                     <select id = "selectStateFile" style="font-size:10px">
                         <option value=''>--Select State--</option>
                         <option value='Maryland'>Maryland</option>
@@ -113,28 +136,6 @@
                     <input type="file" name="fileChecker" id="fileChecker"> 
                     
                     <script type="text/javascript" src="./Hash_Check.js"></script>
-                </td>
-            </tr>
-
-            <tr>
-                <td align = 'center'>
-                    <br />
-                    <textarea id = "text" rows = "1" cols = "50" maxlength="250">
-                        Add Comment Here
-                    </textarea>
-                </td>
-                
-                
-
-            </tr>
-            <tr> 
-                <td align = 'center'>
-                    <button id="btnComment" type="button" style="font-size:15px">Comment</button>
-                </td>
-            </tr>
-            <tr> 
-                <td align = 'center'>
-                    <label id="lblComment"></label>
                 </td>
             </tr>
            
