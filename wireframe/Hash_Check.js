@@ -43,7 +43,7 @@ window.onload = function()
 					delete parsedMessage.adata;
 					
 					// !!NOTE!! Again, hard coding the correct values we should expect
-					if(parsedMessage.iv != "m0aLuLijId99uhZpe9lFnQ==" || parsedMessage.ct != "bBdOsJmSASmI9WuB39DoyMbzielCeO2G7CtprIkNz/+liR6DIb+Dr5MORfk9q3DDv2n9XFM=")
+					if(parsedMessage.ct.substring(0, 50) != "9/iYUd2mriGhFxkHoG2jHn7YMcgXf6R6ZvhqWVyXpdYUEFbGFa")
 					{
 						alert("Maryland Data is Invalid!");
 					}
