@@ -22,13 +22,12 @@
 
 
     </style>
-    
-    <script type="text/javascript" src="APIS/sjcl-master/sjcl.js"></script>
 </head>
 
 <body>
 
     <div>
+    	<!--Intro section-->
     <p align='center'>
         <span style="font-size:20px"><strong>Welcome to the Full Swing System</strong></span>
         <br />
@@ -41,6 +40,7 @@
 
     <div>
     <table align='center'>
+    	<!--notes sections-->
         <tbody>
              <tr>
                 <td align='center'>Notes: Independent voter percentages are not considered in the redistricting process.
@@ -49,6 +49,7 @@
                 </td>
             </tr>
              <tr>
+             	<!--Run Section-->
                 <td align='center'>
                     <br />
                     <select id = "selectState" style="font-size:15px">
@@ -63,6 +64,7 @@
 
                 </td>
             </tr>
+            <!--Map Display Section-->
             <tr> 
                 <td colspan='2' align='center'> 
                     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.3.1/css/ol.css" type="text/css">
@@ -82,6 +84,7 @@
                 </td>
                 
             </tr>
+            <!--Keys for colors-->
 			<tr>
 				<td align='center'>
             		<label> Red = Republican Districts</label>
@@ -96,6 +99,7 @@
         
         <tfoot>
               <tr>
+              	<!--Comment Section-->
                 <td align = 'center'>
                     <br />
                     <textarea id = "text" rows = "1" cols = "50" maxlength="250">
@@ -114,6 +118,7 @@
                     <label id="lblComment"></label>
                 </td>
             </tr>
+            <!--Reference Section-->
             <tr>
                 <td align='center' colspan='3' valign='bottom'>
                     <br />
@@ -121,13 +126,13 @@
                     <br />
                     <strong>References:</strong>
                     <ul align='center'>
-                        <li><a href="https://elections.maryland.gov/elections/2018/index.html">Maryland Voter Affiliation (2018)</a></li>
-                        <li><a href="https://planning.maryland.gov/Redistricting/Pages/2010/precinct.aspx">Maryland Precinct Shapefile (2010)</a></li>
-                        <li><a href="https://www.scvotes.org/results-statistics">South Carolina Voter Data</a></li>
-                        <li><a href="https://github.com/aaron-strauss/precinct-shapefiles/tree/master/sc">South Carolina Shapefile</a></li>
+                        <li><a href="https://elections.maryland.gov/elections/2018/index.html" target="_blank">Maryland Voter Affiliation (2018)</a></li>
+                        <li><a href="https://planning.maryland.gov/Redistricting/Pages/2010/precinct.aspx" target="_blank">Maryland Precinct Shapefile (2010)</a></li>
+                        <li><a href="https://www.scvotes.org/results-statistics" target="_blank">South Carolina Voter Data</a></li>
+                        <li><a href="https://github.com/aaron-strauss/precinct-shapefiles/tree/master/sc" target="_blank">South Carolina Shapefile</a></li>
                         
                     </ul>
-                    
+                    <!--File Integrity Section-->
                     <h5>Check File Integrity</h5>
                     <select id = "selectStateFile" style="font-size:10px">
                         <option value=''>--Select State--</option>
@@ -143,11 +148,13 @@
         </tfoot>
         
     </table>
+    	<!--All of the Scripts needed for this file-->
         <script type="text/javascript" src="APIS/ckeditor/ckeditor.js"></script>
         <script type="text/javascript">
             CKEDITOR.replace( 'text' );
         </script>
         <script src="jsfiles/mappy.js"></script>
+           <script type="text/javascript" src="APIS/sjcl-master/sjcl.js"></script>
     </div>
 
 </body>
