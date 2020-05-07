@@ -28,7 +28,7 @@
 
 using namespace std;
 
-//*** Temp variables for testing, delete later
+//*** File locations
 const string IN_FILE = "E:/UMBC/CMSC/CMSC 447 - SE/Project/CMSC-447-Project/Parsers/SC_Vote_Parser/sc_parsed_voter_with_VTD.txt";
 const string NEIGHBOR_FILE = "E:/UMBC/CMSC/CMSC 447 - SE/Project/CMSC-447-Project/Parsers/SC_Geo_Parser/sc_precinct_neighbors.txt";
 
@@ -80,14 +80,14 @@ int main() {
 	srand(time(nullptr));// Create semi-random set of numbers
 
 	string currentLine; //For reading line by line
-	char* charArray = new char[2048]; // for converting string line into char* (update, bumped up character count, maybe fix issues?)
+	char* charArray = new char[2048]; // for when converting string into char* 
 
-	char* charArray2 = new char[256]; //for secondary tokenizing
+	string precinctId; //Holds the Id of a precinct
+	int numDistricts; //Tracks the number of districts
 
-	string precinctId;
-	int numDistricts;
 
-	//***** Read in Precinct Data ****
+//******** Read in Precinct Data ***************************************************
+
 
 	g_inFile.open(IN_FILE);
 	if (!(g_inFile.is_open()))
@@ -133,7 +133,7 @@ int main() {
 	//Header line, skip over
 	getline(g_inFile, currentLine);
 
-	map<string, int> precinctMap; //use this to track precinct in vector, will use for adding neighbors
+	map<string, int> precinctMap; //Tracks the precincts and if they are added
 	int precinctCount = 0;
 
 	//Loop to add precincts
@@ -148,8 +148,6 @@ int main() {
 		readInPrecinct->setId(precinctId);
 		readInPrecinct->setTotalPop(atoi(strtok(NULL, " \t\v\r\n\f,()")));
 
-		//TODO Figure out if better to grab all party percentages, or just majority. For now, all
-
 		readInPrecinct->addPartyPercentage(stof(strtok(NULL, " \t\v\r\n\f,()")));
 		readInPrecinct->addPartyPercentage(stof(strtok(NULL, " \t\v\r\n\f,()")));
 		readInPrecinct->addPartyPercentage(stof(strtok(NULL, " \t\v\r\n\f,()")));
@@ -159,7 +157,6 @@ int main() {
 		readInPrecinct->addPartyPercentage(stof(strtok(NULL, " \t\v\r\n\f,()")));
 		readInPrecinct->addPartyPercentage(stof(strtok(NULL, " \t\v\r\n\f,()")));
 		
-
 		readInPrecinct->updateMajorParty();
 
 		//Add precinct to vector
@@ -171,11 +168,12 @@ int main() {
 
 	}
 	
-
 	g_inFile.close();
 
 
-	//********* Add neighbor precincts  *********
+
+//********* Add neighbor precincts  ************************************************
+
 
 	g_inFile.open(NEIGHBOR_FILE);
 	if (!(g_inFile.is_open()))
@@ -206,31 +204,26 @@ int main() {
 			nbrFilePrecs.push_back(precinctId);
 
 			int index = iter->second;
-			Precinct* targetPrecinct = g_Precincts[index]; //The precinct we want to add neighbors to
-
+			Precinct* targetPrecinct = g_Precincts[index]; //Precinct to find neighbors for
 			char* precinctIdChar = strtok(NULL, " ,'\n");
 
-			//look at each neighbor for the current precinct
+			//Go through each available neighbor
 			while(precinctIdChar != NULL)
 			{
-
 				precinctId = precinctIdChar;
 				iter = precinctMap.find(precinctId);
 
 				if(iter == precinctMap.end())
 				{
-
 					precinctIdChar = strtok(NULL, " ,'\n");
-
 					continue;
 				}
 
 				int index = iter->second;
 				Precinct* targetNeighborPrecinct = g_Precincts[index];
-
 				targetPrecinct->m_neighbors.push_back(targetNeighborPrecinct);
-
-				precinctIdChar = strtok(NULL, " ,'\n");
+				
+				precinctIdChar = strtok(NULL, " ,'\n"); //read in next precinct(if available)
 			}
 		}
 		
@@ -277,10 +270,11 @@ int main() {
 		}
 	}
 
-	//**********   Setup Districts   **************
 
-	int arrayOfIndex[numDistricts];
-		
+//**********   Setup Districts   *****************************************
+
+
+	int arrayOfIndex[numDistricts]; //Each district will iterate this index through it's list of precincts
 	int partyTargetAssignment; //Tracks what party to assign district
 	
 	for(int jj = DEMOCRAT; jj < numDistricts; jj++)
@@ -310,7 +304,6 @@ int main() {
 
 	for(int jj = (partyTargetAssignment + 1) % numDistricts ;; jj = (jj + 1) % numDistricts)
 	{
-
 		if(activePartiesSC[jj])
 		{
 			partyTargetAssignment = jj;
@@ -371,9 +364,8 @@ int main() {
 
 		g_Districts.push_back(newDistrict);
 
-		for(int jj = (partyTargetAssignment + 1) % numDistricts ;; jj = (jj+1) %numDistricts) //TODO again, change from hard coding 5
+		for(int jj = (partyTargetAssignment + 1) % numDistricts ;; jj = (jj+1) %numDistricts)
 		{
-
 			if(activePartiesSC[jj])
 			{
 				partyTargetAssignment = jj;
@@ -394,13 +386,10 @@ int main() {
 	}
 	cout << endl;
 
-	//********** Add Precincts to Districts ********
-	//REMINDER: After precinct added to district, run district.manageEdges() function
-	// Using algorithm_practice.cpp as guidance for what to do for now...
-	//while there are still precincts to add
+//********** Add Precincts to Districts **************************************
+
 
 	int count = 0;
-
 	int size = precinctMap.size();
 
 	while (count < size - 500)

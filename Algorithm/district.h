@@ -24,9 +24,8 @@ class District {
 private:
     int m_id;		                  // district's id or index
     int m_party;	                  // district's target party affiliation
-    vector<int> m_partyStats;             // stat for each party, used to determine district's current party majority, not sure if this would hold #of precincts or populations for each party
-    //vector<Precinct*> m_precincts;	   // list of pointers to district's precincts
-    //vector<Precinct*> m_edgePrecincts;   // member precinct's that are at the district's border, semi-redundant to m_precincts
+    vector<int> m_partyStats;         // stat for each party, used to determine district's current party majority
+    
 
 public:
     // Construct - Destruct
@@ -126,12 +125,12 @@ void District::print(int debug=0)
     {
         algOutput << "'" << m_precincts[i]->getId() <<"'" << ",";
 
-	//Optionally, we want to save the total population and party population for testing
+		//Optionally, we want to save the total population and party population for testing
         if(debug)
         {
 	    districtPop += m_precincts[i]->getTotalPop();
 	    partyPop += m_precincts[i]->getPartyPop(checkMajorityParty());
-	}
+		}
     }
 
     algOutput << "\n \n";
@@ -140,14 +139,14 @@ void District::print(int debug=0)
     if(debug)
     {
         double percentage = partyPop/districtPop;
-	cout << "Majority percentage: " << percentage << endl;
-	cout << "All party percentages: ";
+		cout << "Majority percentage: " << percentage << endl;
+		cout << "All party percentages: ";
 
-	for(int i=0;i<m_partyStats.size();i++)
-	{
-	  cout << m_partyStats[i] << ", "; 
-	}
-	cout << "\n";
+		for(int i=0;i<m_partyStats.size();i++)
+		{
+		  cout << m_partyStats[i] << ", "; 
+		}
+		cout << "\n";
     }
     
     algOutput.close();
@@ -166,10 +165,10 @@ int District::checkMajorityParty()
     for(int i = 0; i < (int)m_partyStats.size(); i++)
     {
         if(m_partyStats[i] > highest)
-	{
-	    highest = m_partyStats[i];
-	    majority = i;
-	}
+		{
+			highest = m_partyStats[i];
+			majority = i;
+		}
     }
 
     // Return index of majority party
@@ -195,22 +194,21 @@ void District::manageEdges()
 	            //Check if the neighbor is already in the current district
 	            if(m_precincts[k]->getId() == m_edgePrecincts[i]->m_neighbors[j]->getId())
 	            {
-		  
 		            //Remove the naighbor
 		            m_edgePrecincts[i]->m_neighbors.erase(m_edgePrecincts[i]->m_neighbors.begin()+j);
 		            j--;
 		            break;
 		        }     
 	        }
-	}
+		}
 
-	//If the edge precinct has an empty neighbors list
-	if(m_edgePrecincts[i]->m_neighbors.empty())
-	{
-	    //cout << "Removed precinct " << m_edgePrecincts[i]->getId() << endl;
-	    m_edgePrecincts.erase(m_edgePrecincts.begin()+i);
-	    i--;
-	}
+		//If the edge precinct has an empty neighbors list
+		if(m_edgePrecincts[i]->m_neighbors.empty())
+		{
+			//cout << "Removed precinct " << m_edgePrecincts[i]->getId() << endl;
+			m_edgePrecincts.erase(m_edgePrecincts.begin()+i);
+			i--;
+		}
     }
 }
 

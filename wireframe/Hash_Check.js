@@ -27,7 +27,6 @@ window.onload = function()
 				case 'Maryland':
 				{
 					//Take the file currently in directory, and encrypt 
-					//!!NOTE!! Hard coding given key/password and parameters from successful encryption
 					
 					theHash = sjcl.encrypt("abcde", fileContent,{iv:"m0aLuLijId99uhZpe9lFnQ==",v:1,iter:10000,ks:128,ts:64,mode:"ccm",adata:"",cipher:"aes",salt:"uUcE3UaZMfQ="});
 					
@@ -42,7 +41,6 @@ window.onload = function()
 					delete parsedMessage.salt;
 					delete parsedMessage.adata;
 					
-					// !!NOTE!! Again, hard coding the correct values we should expect
 					if(parsedMessage.ct.substring(0, 50) != "9/iYUd2mriGhFxkHoG2jHn7YMcgXf6R6ZvhqWVyXpdYUEFbGFa")
 					{
 						alert("Maryland Data is Invalid!");
@@ -70,7 +68,6 @@ window.onload = function()
 					delete parsedMessage.salt;
 					delete parsedMessage.adata;
 					
-					// !!NOTE!! Again, hard coding the correct values we should expect
 					if(parsedMessage.ct.substring(0, 50) != "iOOBJawy8mDi6Jc8EIJo19VEhmO+grZ6E75MFBc3GyrXdHA5su")
 					{
 						alert("South Carolina Data is Invalid!");

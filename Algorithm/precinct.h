@@ -27,7 +27,6 @@ private:
     int m_totalPop;	            // the total population
     vector<double> m_partyPercents; // percentage of party affiliation, one entry for each party
     int m_majorPartyIndex;
-    //vector<Precinct*> m_neighbors;// list of pointers to all adjacent precincts
 
 public:
     // Construct - Destruct
