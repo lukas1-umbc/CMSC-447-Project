@@ -23,7 +23,7 @@
 
     </style>
     
-    <script type="text/javascript" src="./sjcl-master/sjcl.js"></script>
+    <script type="text/javascript" src="APIS/sjcl-master/sjcl.js"></script>
 </head>
 
 <body>
@@ -44,8 +44,8 @@
         <tbody>
              <tr>
                 <td align='center'>Notes: Independent voter percentages are not considered in the redistricting process.
-                    <br>
-                    South Carolina uses 2016 election results, while Maryland uses actual voter affiliation
+                <br>
+                South Carolina uses 2016 election results, while Maryland uses actual voter affiliation
                 </td>
             </tr>
              <tr>
@@ -95,11 +95,6 @@
         </tbody>
         
         <tfoot>
-            <tr> 
-                <td align = 'center'>
-                    <button id="btnComment" type="button" style="font-size:15px">Comment</button>
-                </td>
-            </tr>
               <tr>
                 <td align = 'center'>
                     <br />
@@ -107,10 +102,13 @@
                         Add Comment Here
                     </textarea>
                 </td>
-                
-                
-
             </tr>
+            <tr> 
+                <td align = 'center'>
+                    <button id="btnComment" type="button" style="font-size:15px">Comment</button>
+                </td>
+            </tr>
+            <tr></tr>
             <tr> 
                 <td align = 'center'>
                     <label id="lblComment"></label>
@@ -138,18 +136,18 @@
                     </select>
                     <input type="file" name="fileChecker" id="fileChecker"> 
                     
-                    <script type="text/javascript" src="./Hash_Check.js"></script>
+                    <script type="text/javascript" src="jsfiles/Hash_Check.js"></script>
                 </td>
             </tr>
            
         </tfoot>
         
     </table>
-     <script type="text/javascript" src="ckeditor/ckeditor.js"></script>
-            <script type="text/javascript">
-                CKEDITOR.replace( 'text' );
-            </script>
-            <script src="./mappy.js"></script>
+        <script type="text/javascript" src="APIS/ckeditor/ckeditor.js"></script>
+        <script type="text/javascript">
+            CKEDITOR.replace( 'text' );
+        </script>
+        <script src="jsfiles/mappy.js"></script>
     </div>
 
 </body>
