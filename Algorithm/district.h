@@ -102,14 +102,14 @@ void District::print(int debug=0)
     }
 
     //First we check if the output file already exists
-    ifstream algOutputTest("algOutput.txt");
+    ifstream algOutputTest("scAlgOutput.txt");
     int firstLine = 0;
     if(!algOutputTest.is_open()) firstLine = 1;
     algOutputTest.close();
     
     //Opens the output file in append mode
     ofstream algOutput;
-    algOutput.open("algOutput.txt", ios::app);
+    algOutput.open("scAlgOutput.txt", ios::app);
 
     //Testing variables for optional debug info
     int districtPop = 0;
